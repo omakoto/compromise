@@ -2,12 +2,12 @@ package adapters
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/go-common/src/common"
 	"io"
 	"os"
 	"path/filepath"
-	"fmt"
 )
 
 const (

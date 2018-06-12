@@ -77,7 +77,7 @@ func (p *bashParameters) Unescape(arg string) string {
 
 func (a *bashAdapter) Install(targetCommandNames []string, spec string) {
 	p := bashParameters{}
-	p.FuncName = "__compromise_" + toShellSafeName(targetCommandNames[0]) + "_completion"
+	p.FuncName = getFuncName(targetCommandNames[0])
 	path, err := filepath.Abs(common.MustGetExecutable())
 	common.Checkf(err, "Abs failed")
 	p.ExecutableName = path
@@ -285,7 +285,7 @@ func (a *bashAdapter) MaybeOverrideCandidates(commandLine *CommandLine) []compro
 			if len(m[2]) == 0 {
 				// $NAM[TAB]
 				// Do a variable name expansion. e.g. $PAT -> $PATH
-				for key, _ := range a.variables {
+				for key := range a.variables {
 					if compromise.StringMatches(key, m[1]) {
 						ret = append(ret, compromise.NewCandidateBuilder().Value("$"+key).Continues(true).Force(true).Build())
 					}

@@ -211,7 +211,7 @@ func (p *parser) parse() *compast.Node {
 	return root
 }
 
-func (p *parser) ensureLabelsExist(n *compast.Node)  {
+func (p *parser) ensureLabelsExist(n *compast.Node) {
 	if n == nil {
 		return
 	}
@@ -220,7 +220,7 @@ func (p *parser) ensureLabelsExist(n *compast.Node)  {
 			panic(compromise.NewSpecErrorf(n.SelfToken(), "label %s doesn't exist", n.LabelWord()))
 		}
 	}
-	for c := n.Child() ; c != nil; c = c.Next() {
+	for c := n.Child(); c != nil; c = c.Next() {
 		p.ensureLabelsExist(c)
 	}
 }

@@ -62,7 +62,7 @@ func (p *zshParameters) Unescape(arg string) string {
 
 func (a *zshAdapter) Install(targetCommandNames []string, spec string) {
 	p := zshParameters{}
-	p.FuncName = "__compromise_" + toShellSafeName(targetCommandNames[0]) + "_completion"
+	p.FuncName = getFuncName(targetCommandNames[0])
 	path, err := filepath.Abs(common.MustGetExecutable())
 	common.Checkf(err, "Abs failed")
 	p.ExecutableName = path

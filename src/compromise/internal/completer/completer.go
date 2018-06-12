@@ -12,13 +12,7 @@ import (
 	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
 	"github.com/omakoto/compromise/src/compromise/internal/parser"
 	"github.com/omakoto/go-common/src/common"
-	"github.com/omakoto/go-common/src/utils"
-	"os"
 	"sync/atomic"
-)
-
-var (
-	maxCandidate = int(utils.ParseInt(os.Getenv("COMPROMISE_MAX_CANDIDATES"), 10, 50))
 )
 
 type Engine struct {

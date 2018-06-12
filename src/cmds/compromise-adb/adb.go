@@ -5,13 +5,13 @@ import (
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/compmain"
+	"github.com/omakoto/go-common/src/fileutils"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/ungerik/go-dry"
 	"os"
 	"path"
 	"regexp"
 	"strings"
-	"github.com/omakoto/go-common/src/fileutils"
 )
 
 var (
@@ -179,7 +179,7 @@ func takeBuildModuleReal() compromise.CandidateList {
 			return nil
 		}
 		ret := make([]compromise.Candidate, 0)
-		for k, _ := range data {
+		for k := range data {
 			ret = append(ret, compromise.NewCandidateBuilder().Value(k).Build())
 		}
 		return ret
@@ -190,12 +190,12 @@ func takeBuildModule() compromise.CandidateList {
 
 	// Cheat version. It assumes the content looks like the following (i.e. one module each line):
 	/*
-{
-  "1x.sh": { "class": ["EXECUTABLES"],  "path": ["vendor/google_devices/marlin...
-  "26.0.cil": { "class": ["ETC"],  "path": ["system/sepolicy"],  "tags": ["opt...
-  :
-}
-	 */
+		{
+		  "1x.sh": { "class": ["EXECUTABLES"],  "path": ["vendor/google_devices/marlin...
+		  "26.0.cil": { "class": ["ETC"],  "path": ["system/sepolicy"],  "tags": ["opt...
+		  :
+		}
+	*/
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
 		file := path.Join(os.Getenv("OUT"), "module-info.json")
 		if !fileutils.FileExists(file) {

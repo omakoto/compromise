@@ -71,4 +71,3 @@ func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool) []comprom
 	compdebug.Dump("Filecopletion result=", ret)
 	return ret
 }
-
