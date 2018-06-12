@@ -199,7 +199,7 @@ func (e *Engine) executeCall(n *compast.Node, doSwitch bool, matched *bool) {
 	// @call: Jump to the target label, and then execute from it's next, until "return" is detected.
 
 	label := n.LabelWord()
-	target := e.astRoot.GetLabeledNode(label, n.Label()).Next()
+	target := e.astRoot.GetLabeledNode(label, n.Label()).Child()
 
 	m := false
 	doWithFlowControl(catchReturn(), func() {

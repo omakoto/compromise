@@ -383,85 +383,85 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 @finish
 
 @label :install-options
-@switchloop "^-"
-	-l		# forward lock application
-	-r		# replace existing application
-	-t		# allow test packages
-	-s		# install application on sdcard
-	-d		# allow version code downgrade (debuggable packages only)
-	-p		# partial application install (install-multiple only)
-	-g		# grant all runtime permissions
+	@switchloop "^-"
+		-l		# forward lock application
+		-r		# replace existing application
+		-t		# allow test packages
+		-s		# install application on sdcard
+		-d		# allow version code downgrade (debuggable packages only)
+		-p		# partial application install (install-multiple only)
+		-g		# grant all runtime permissions
 
 @label :am
 
 @label :pm
-@switch
-	dump	# dump package
-		@cand takeDevicePackage
+	@switch
+		dump	# dump package
+			@cand takeDevicePackage
 
 
 @label :dumpsys
-@cand takeService
+	@cand takeService
 
 @label :cmd
-@cand takeService
+	@cand takeService
 
 @label :settings
-@switch
-	//   get [--user <USER_ID> | current] NAMESPACE KEY
-	get			# Retrieve the current value of KEY
-		@call :settings_user
-		@call :settings_namespace	
-		@cand takeSettingKey
+	@switch
+		//   get [--user <USER_ID> | current] NAMESPACE KEY
+		get			# Retrieve the current value of KEY
+			@call :settings_user
+			@call :settings_namespace	
+			@cand takeSettingKey
+		
+		//   put [--user <USER_ID> | current] NAMESPACE KEY VALUE [TAG] [default]
+		put			# Change the contents of KEY to VALUE
+			@call :settings_user
+			@call :settings_namespace
+			@cand takeSettingKey
+			@any    # <value> value to set
+			@any    # <tag> 
+			@switch
+				default # {default} to set as the default, case-insensitive only for global/secure namespace
 	
-	//   put [--user <USER_ID> | current] NAMESPACE KEY VALUE [TAG] [default]
-	put			# Change the contents of KEY to VALUE
-		@call :settings_user
-		@call :settings_namespace
-		@cand takeSettingKey
-		@any    # <value> value to set
-		@any    # <tag> 
-		@switch
-			default # {default} to set as the default, case-insensitive only for global/secure namespace
-
-	//   delete NAMESPACE KEY
-	delete		# Delete the entry for KEY
-		@call :settings_namespace
-		@cand takeSettingKey
+		//   delete NAMESPACE KEY
+		delete		# Delete the entry for KEY
+			@call :settings_namespace
+			@cand takeSettingKey
+		
+		//   reset [--user <USER_ID> | current] NAMESPACE {PACKAGE_NAME | RESET_MODE}
+		reset		# Reset the global/secure table for a package with mode
+			@call :settings_user
+			@call :settings_namespace
+			@switch
+				@cand takeDevicePackage
+				untrusted_defaults
+				untrusted_clear
+				trusted_defaults
 	
-	//   reset [--user <USER_ID> | current] NAMESPACE {PACKAGE_NAME | RESET_MODE}
-	reset		# Reset the global/secure table for a package with mode
-		@call :settings_user
-		@call :settings_namespace
-		@switch
-			@cand takeDevicePackage
-			untrusted_defaults
-			untrusted_clear
-			trusted_defaults
-
-	//   list NAMESPACE
-	list	# Print all defined keys
-		@call :settings_namespace
-	
+		//   list NAMESPACE
+		list	# Print all defined keys
+			@call :settings_namespace
+		
 // settings " --user [ X | current ] "
 @label :settings_user	
-@switch "^-"
-	--user
-		@switch
- 			@cand takeUserId
-				@go_call setUserId
-			current
-				@go_call setUserId 
+	@switch "^-"
+		--user
+			@switch
+	 			@cand takeUserId
+					@go_call setUserId
+				current
+					@go_call setUserId 
 
 // settings global put " [ global | system | secure ] "
 @label :settings_namespace
-@switch
-	global
-		@go_call setSettingsNamespace 
-	system
-		@go_call setSettingsNamespace 
-	secure
-		@go_call setSettingsNamespace 
+	@switch
+		global
+			@go_call setSettingsNamespace 
+		system
+			@go_call setSettingsNamespace 
+		secure
+			@go_call setSettingsNamespace 
 
 @label :requestsync
 
@@ -471,56 +471,56 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 
 @label :kill
-@switchloop "^-"
-	-s	# specify signal
-		@switch
-			HUP # Hangup
-			INT # Interrupt
-			QUIT # Quit
-			ILL # Illegal instruction
-			TRAP # Trap
-			ABRT # Aborted
-			BUS # Bus error
-			FPE # Floating point exception
-			KILL # Killed
-			USR1 # User signal 1
-			SEGV # Segmentation fault
-			USR2 # User signal 2
-			PIPE # Broken pipe
-			ALRM # Alarm clock
-			TERM # Terminated
-			STKFLT # Stack fault
-			CHLD # Child exited
-			CONT # Continue
-			STOP # Stopped (signal)
-			TSTP # Stopped
-			TTIN # Stopped (tty input)
-			TTOU # Stopped (tty output)
-			URG # Urgent I/O condition
-			XCPU # CPU time limit exceeded
-			XFSZ # File size limit exceeded
-			VTALRM # Virtual timer expired
-			PROF # Profiling timer expired
-			WINCH # Window size changed
-			IO # I/O possible
-			PWR # Power failure
-			SYS # Bad system call
-	-l 	# list signals
-@loop
-	@cand takePid
+	@switchloop "^-"
+		-s	# specify signal
+			@switch
+				HUP # Hangup
+				INT # Interrupt
+				QUIT # Quit
+				ILL # Illegal instruction
+				TRAP # Trap
+				ABRT # Aborted
+				BUS # Bus error
+				FPE # Floating point exception
+				KILL # Killed
+				USR1 # User signal 1
+				SEGV # Segmentation fault
+				USR2 # User signal 2
+				PIPE # Broken pipe
+				ALRM # Alarm clock
+				TERM # Terminated
+				STKFLT # Stack fault
+				CHLD # Child exited
+				CONT # Continue
+				STOP # Stopped (signal)
+				TSTP # Stopped
+				TTIN # Stopped (tty input)
+				TTOU # Stopped (tty output)
+				URG # Urgent I/O condition
+				XCPU # CPU time limit exceeded
+				XFSZ # File size limit exceeded
+				VTALRM # Virtual timer expired
+				PROF # Profiling timer expired
+				WINCH # Window size changed
+				IO # I/O possible
+				PWR # Power failure
+				SYS # Bad system call
+		-l 	# list signals
+	@loop
+		@cand takePid
 
 @label :killall
-@switchloop "^-"
-	-i      # ask for confirmation before killing
-	-l      # print list of all available signals
-	-q      # don't print any warnings or error messages
-	-s      # send SIGNAL instead of SIGTERM
-	-v      # report if the signal was successfully sent
-@loop
-	@cand takeProcessName
+	@switchloop "^-"
+		-i      # ask for confirmation before killing
+		-l      # print list of all available signals
+		-q      # don't print any warnings or error messages
+		-s      # send SIGNAL instead of SIGTERM
+		-v      # report if the signal was successfully sent
+	@loop
+		@cand takeProcessName
 
 @label :logcat
-@switchloop "^-"
+	@switchloop "^-"
 			--help				# Show help
 			-s					# Set default filter to silent. Equivalent to filterspec '*:S'
 			-f|--file			# Log to file. Default is stdout
@@ -577,144 +577,143 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			--wrap				# Sleep for 2 hours or when buffer about to wrap whichever comes first
 
 
-@loop
-	@cand takeLogcatFilter
-
+	@loop
+		@cand takeLogcatFilter
 
 @label :fastboot // TODO support device serial completion.
-@switchloop "^-"
-	-w                                      # Erase userdata and cache (and format \
-	                                        # if supported by partition type).
-	-u                                      # Do not erase partition before \
-	                                        # formatting.
-    -s                                      # Specify a device. For USB, provide either \
-                                            # a serial number or path to device port. \
-                                            # For ethernet, provide an address in the \
-                                            # form <protocol>:<hostname>[:port] where \
-                                            # <protocol> is either tcp or udp.
-		@any								# <serial>
-    -c                                      # Override kernel commandline.
-		@any								# <commandline>
-		
-    -i                                      # Specify a custom USB vendor id.
-		@any								# <vendor id>
-    -b|--base                               # Specify a custom kernel base \
-                                            # address (default: 0x10000000).
-		@any								# <base addr>
-    --kernel-offset                         # Specify a custom kernel offset. \
-                                            # (default: 0x00008000)
-		@any								# <base addr>
-    --ramdisk-offset                        # Specify a custom ramdisk offset. \
-                                            # (default: 0x01000000)
-		@any								# <base addr>
-    --tags-offset                           # Specify a custom tags offset. \
-                                            # (default: 0x00000100)
-		@any								# <base addr>
-    -n|--page-size                          # Specify the nand page size \
-                                            # (default: 2048).
-		@any								# <page size>
-    -S                                      # Automatically sparse files greater \
-                                            # than 'size'. 0 to disable.
-		@any								# <size>[K|M|G]  
-    --slot                                  # Specify slot name to be used if the \
-                                            # device supports slots. All operations \
-                                            # on partitions that support slots will \
-                                            # be done on the slot specified.
-		@any								# <slot>  
-    -a|--set-active                         # Sets the active slot.
-		@any								# <slot>  
-    --skip-secondary                        # Will not flash secondary slots when \
-                                            # performing a flashall or update. This \
-                                            # will preserve data on other slots.
-    --skip-reboot                           # Will not reboot the device when \
-                                            # performing commands that normally \
-                                            # trigger a reboot.
-    --disable-verity                        # Set the disable-verity flag in the \
-                                            # the vbmeta image being flashed.
-    --disable-verification                  # Set the disable-verification flag in \
-                                            # the vbmeta image being flashed.
-    --wipe-and-use-fbe                      # On devices which support it, \
-                                            # erase userdata and cache, and \
-                                            # enable file-based encryption
-    --unbuffered                            # Do not buffer input or output.
-    --version                               # Display version.
-    --header-version                        # Set boot image header version while \
-                                            # using flash:raw and boot commands to \
-                                            # to create a boot image.
-    -h|--help                               # show this message.
+	@switchloop "^-"
+		-w                                      # Erase userdata and cache (and format \
+		                                        # if supported by partition type).
+		-u                                      # Do not erase partition before \
+		                                        # formatting.
+	    -s                                      # Specify a device. For USB, provide either \
+	                                            # a serial number or path to device port. \
+	                                            # For ethernet, provide an address in the \
+	                                            # form <protocol>:<hostname>[:port] where \
+	                                            # <protocol> is either tcp or udp.
+			@any								# <serial>
+	    -c                                      # Override kernel commandline.
+			@any								# <commandline>
+			
+	    -i                                      # Specify a custom USB vendor id.
+			@any								# <vendor id>
+	    -b|--base                               # Specify a custom kernel base \
+	                                            # address (default: 0x10000000).
+			@any								# <base addr>
+	    --kernel-offset                         # Specify a custom kernel offset. \
+	                                            # (default: 0x00008000)
+			@any								# <base addr>
+	    --ramdisk-offset                        # Specify a custom ramdisk offset. \
+	                                            # (default: 0x01000000)
+			@any								# <base addr>
+	    --tags-offset                           # Specify a custom tags offset. \
+	                                            # (default: 0x00000100)
+			@any								# <base addr>
+	    -n|--page-size                          # Specify the nand page size \
+	                                            # (default: 2048).
+			@any								# <page size>
+	    -S                                      # Automatically sparse files greater \
+	                                            # than 'size'. 0 to disable.
+			@any								# <size>[K|M|G]  
+	    --slot                                  # Specify slot name to be used if the \
+	                                            # device supports slots. All operations \
+	                                            # on partitions that support slots will \
+	                                            # be done on the slot specified.
+			@any								# <slot>  
+	    -a|--set-active                         # Sets the active slot.
+			@any								# <slot>  
+	    --skip-secondary                        # Will not flash secondary slots when \
+	                                            # performing a flashall or update. This \
+	                                            # will preserve data on other slots.
+	    --skip-reboot                           # Will not reboot the device when \
+	                                            # performing commands that normally \
+	                                            # trigger a reboot.
+	    --disable-verity                        # Set the disable-verity flag in the \
+	                                            # the vbmeta image being flashed.
+	    --disable-verification                  # Set the disable-verification flag in \
+	                                            # the vbmeta image being flashed.
+	    --wipe-and-use-fbe                      # On devices which support it, \
+	                                            # erase userdata and cache, and \
+	                                            # enable file-based encryption
+	    --unbuffered                            # Do not buffer input or output.
+	    --version                               # Display version.
+	    --header-version                        # Set boot image header version while \
+	                                            # using flash:raw and boot commands to \
+	                                            # to create a boot image.
+	    -h|--help                               # show this message.
 
 
-@switch
-	update                                  # Reflash device from update.zip. \
-	                                        # Sets the flashed slot as active.
-		@cand takeFile
-    flashall                                # Flash boot, system, vendor, and -- \
-	                                        # if found -- recovery. If the device \
-	                                        # supports slots, the slot that has \
-	                                        # been flashed to is set as active. \
-	                                        # Secondary images may be flashed to \
-	                                        # an inactive slot.
-	flash                                   # Write a file to a flash partition.
-		@any 								# Partition name
-		@cand takeFile
-	flashing
-		@switch
-     		 lock                           # Locks the device. Prevents flashing.
-             unlock                         # Unlocks the device. Allows flashing \
-                                            # any partition except \
-                                            # bootloader-related partitions.
-             lock_critical                  # Prevents flashing bootloader-related \
-                                            # partitions.
-             unlock_critical                # Enables flashing bootloader-related \
-                                            # partitions.
-             get_unlock_ability             # Queries bootloader to see if the \
-                                            # device is unlocked.
-             get_unlock_bootloader_nonce    # Queries the bootloader to get the \
-                                            # unlock nonce.
-             unlock_bootloader              # Issue unlock bootloader using request.
-				@any 						# <request>
-             lock_bootloader                # Locks the bootloader to prevent \
-                                            # bootloader version rollback.
-    erase                                   # Erase a flash partition.
-		@any								# <partition>  
-    format                                  # Format a flash partition. Can \
-                                            # override the fs type and/or size \
-                                            # the bootloader reports. 
-		@any								# <partition>  
-    getvar                                  # Display a bootloader variable.
-		@any								# <variable>  
-    set_active                              # Sets the active slot. If slots are \
-                                            # not supported, this does nothing.
-		@any								# <slot>  
-    boot                                    # Download and boot kernel.
-		@any								# <kernel>  
-		@any								# <ramdisk>  
-		@any								# <second>  
-    "flash:raw"                             # Create bootimage and flash it.
-		@any								# <bootable-partition>  
-		@any								# <kernel>  
-		@any								# <ramdisk>  
-		@any								# <second>  
-    devices                                 # List all connected devices.
-		-l                                  # List all connected devices with device paths.
-    continue                                # Continue with autoboot.
-    reboot                                  # Reboot device [into bootloader or emergency mode].
-		@switch
-			bootloader
-			emergency
-    reboot-bootloader                       # Reboot device into bootloader.
-    oem                                     # Executes oem specific command.
-		@loop
-			@any							# <parameter>
-    stage                                   # Sends contents of <infile> to stage for \
-                                            # the next command. Supported only on \
-                                            # Android Things devices.
-		@cand takeFile	  
-    get_staged                              # Receives data to <outfile> staged by the \
-                                            # last command. Supported only on Android  \
-                                            # Things devices.
-		@cand takeFile	  
-    help                                    # Show this help message.
+	@switch
+		update                                  # Reflash device from update.zip. \
+		                                        # Sets the flashed slot as active.
+			@cand takeFile
+	    flashall                                # Flash boot, system, vendor, and -- \
+		                                        # if found -- recovery. If the device \
+		                                        # supports slots, the slot that has \
+		                                        # been flashed to is set as active. \
+		                                        # Secondary images may be flashed to \
+		                                        # an inactive slot.
+		flash                                   # Write a file to a flash partition.
+			@any 								# Partition name
+			@cand takeFile
+		flashing
+			@switch
+	     		 lock                           # Locks the device. Prevents flashing.
+	             unlock                         # Unlocks the device. Allows flashing \
+	                                            # any partition except \
+	                                            # bootloader-related partitions.
+	             lock_critical                  # Prevents flashing bootloader-related \
+	                                            # partitions.
+	             unlock_critical                # Enables flashing bootloader-related \
+	                                            # partitions.
+	             get_unlock_ability             # Queries bootloader to see if the \
+	                                            # device is unlocked.
+	             get_unlock_bootloader_nonce    # Queries the bootloader to get the \
+	                                            # unlock nonce.
+	             unlock_bootloader              # Issue unlock bootloader using request.
+					@any 						# <request>
+	             lock_bootloader                # Locks the bootloader to prevent \
+	                                            # bootloader version rollback.
+	    erase                                   # Erase a flash partition.
+			@any								# <partition>  
+	    format                                  # Format a flash partition. Can \
+	                                            # override the fs type and/or size \
+	                                            # the bootloader reports. 
+			@any								# <partition>  
+	    getvar                                  # Display a bootloader variable.
+			@any								# <variable>  
+	    set_active                              # Sets the active slot. If slots are \
+	                                            # not supported, this does nothing.
+			@any								# <slot>  
+	    boot                                    # Download and boot kernel.
+			@any								# <kernel>  
+			@any								# <ramdisk>  
+			@any								# <second>  
+	    "flash:raw"                             # Create bootimage and flash it.
+			@any								# <bootable-partition>  
+			@any								# <kernel>  
+			@any								# <ramdisk>  
+			@any								# <second>  
+	    devices                                 # List all connected devices.
+			-l                                  # List all connected devices with device paths.
+	    continue                                # Continue with autoboot.
+	    reboot                                  # Reboot device [into bootloader or emergency mode].
+			@switch
+				bootloader
+				emergency
+	    reboot-bootloader                       # Reboot device into bootloader.
+	    oem                                     # Executes oem specific command.
+			@loop
+				@any							# <parameter>
+	    stage                                   # Sends contents of <infile> to stage for \
+	                                            # the next command. Supported only on \
+	                                            # Android Things devices.
+			@cand takeFile	  
+	    get_staged                              # Receives data to <outfile> staged by the \
+	                                            # last command. Supported only on Android  \
+	                                            # Things devices.
+			@cand takeFile	  
+	    help                                    # Show this help message.
 
 
 `

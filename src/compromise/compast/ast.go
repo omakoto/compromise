@@ -134,7 +134,7 @@ func (n *Node) SelfToken() *Token {
 
 func (n *Node) maxChildren() int {
 	switch n.nodeType {
-	case NodeCommand, NodeLabel, NodeCall, NodeFinish, NodeGoCall:
+	case NodeCommand, NodeCall, NodeFinish, NodeGoCall:
 		return 0
 	}
 	return math.MaxInt32
@@ -183,6 +183,10 @@ func (n *Node) addNext(new *Node) {
 	if new.parent != nil {
 		panic(fmt.Sprintf("node %v already has parent set", new))
 	}
+	if n.nodeType == NodeLabel && new.nodeType != NodeLabel {
+		panic(compromise.NewSpecErrorf(new.selfToken, "only @label can appear at the top level"))
+	}
+
 	n.next = new
 	n.parent.lastChild = new
 	n.parent.numChildren++
@@ -220,7 +224,7 @@ func (n *Node) GetLabeledNode(label string, referrer *Token) *Node {
 // for the command, taking @command's into account.
 func (n *Node) GetStartNodeForCommand(command string) *Node {
 	if commandNode, ok := n.commandJumpTo[command]; ok && commandNode.label != nil {
-		return n.GetLabeledNode(commandNode.label.Word, commandNode.command).Next()
+		return n.GetLabeledNode(commandNode.label.Word, commandNode.command).Child()
 	}
 	return n.Child()
 }
