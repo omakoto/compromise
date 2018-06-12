@@ -6,11 +6,10 @@ A Go framework for writing shell completion for Bash / Zsh.
 ## Installation
 
 ```sh
-$ go get -u github.com/omakoto/compromise/cmds/compromise-adb # ADB completion
-$ . <(compromise-adb)
+go get -u github.com/omakoto/compromise/src/cmds/...
 
-$ go get -u github.com/omakoto/compromise/cmds/compromise-go  # GO completion
-$ . <(compromise-go)
+. <(compromise-adb) # Install ADB completion
+. <(compromise-go)  # Install Go completion
 ```
 
 
