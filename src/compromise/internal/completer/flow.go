@@ -4,8 +4,8 @@ package compengine
 
 import (
 	"fmt"
-	"github.com/omakoto/compromise-go/src/compromise/compast"
-	"github.com/omakoto/compromise-go/src/compromise/internal/compdebug"
+	"github.com/omakoto/compromise/src/compromise/compast"
+	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 )
 
 // flowControl will be thrown with panic() with a flow control node such as NodeBreak for global escaping.

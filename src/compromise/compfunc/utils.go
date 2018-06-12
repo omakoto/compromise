@@ -1,7 +1,7 @@
 package compfunc
 
 import (
-	"github.com/omakoto/compromise-go/src/compromise"
+	"github.com/omakoto/compromise/src/compromise"
 	"strings"
 )
 

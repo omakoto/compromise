@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/omakoto/compromise-go/src/compromise/compmain"
+	"github.com/omakoto/compromise/src/compromise/compmain"
 	"github.com/omakoto/go-common/src/common"
 	"os"
 )

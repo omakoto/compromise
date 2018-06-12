@@ -3,8 +3,8 @@ package compast
 // Set of functions to create ast Nodes.
 
 import (
-	"github.com/omakoto/compromise-go/src/compromise"
-	"github.com/omakoto/compromise-go/src/compromise/compfunc"
+	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"sync/atomic"
 )
 

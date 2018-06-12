@@ -2,8 +2,8 @@ package compfunc
 
 import (
 	"bytes"
-	"github.com/omakoto/compromise-go/src/compromise"
-	"github.com/omakoto/compromise-go/src/compromise/internal/compdebug"
+	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/common"
 	"io/ioutil"
 	"os"

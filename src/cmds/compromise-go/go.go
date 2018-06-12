@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/omakoto/compromise-go/src/compromise"
-	"github.com/omakoto/compromise-go/src/compromise/compmain"
+	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compmain"
 )
 
 func init() {

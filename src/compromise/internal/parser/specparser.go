@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github.com/omakoto/compromise-go/src/compromise"
-	"github.com/omakoto/compromise-go/src/compromise/compast"
-	"github.com/omakoto/compromise-go/src/compromise/internal/parser/tokenizer"
+	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compast"
+	"github.com/omakoto/compromise/src/compromise/internal/parser/tokenizer"
 	"github.com/omakoto/go-common/src/common"
 )
 

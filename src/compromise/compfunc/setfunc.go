@@ -1,8 +1,8 @@
 package compfunc
 
 import (
-	"github.com/omakoto/compromise-go/src/compromise"
-	"github.com/omakoto/compromise-go/src/compromise/internal/compdebug"
+	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 )
 
 func SetBool(target *bool, value bool) func() {

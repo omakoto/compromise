@@ -2,7 +2,7 @@ package compfunc
 
 import (
 	"fmt"
-	"github.com/omakoto/compromise-go/src/compromise"
+	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/go-common/src/common"
 	"reflect"
 	"strings"

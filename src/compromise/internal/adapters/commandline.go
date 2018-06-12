@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"github.com/omakoto/compromise-go/src/compromise"
+	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/omakoto/go-common/src/utils"
 	"github.com/ungerik/go-dry"

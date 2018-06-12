@@ -2,9 +2,9 @@ package main
 
 import (
 	"bytes"
-	"github.com/omakoto/compromise-go/src/compromise"
-	"github.com/omakoto/compromise-go/src/compromise/compfunc"
-	"github.com/omakoto/compromise-go/src/compromise/compmain"
+	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compfunc"
+	"github.com/omakoto/compromise/src/compromise/compmain"
 	"github.com/omakoto/go-common/src/shell"
 	"regexp"
 	"strings"

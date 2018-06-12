@@ -2,8 +2,8 @@ package tokenizer
 
 import (
 	"bytes"
-	"github.com/omakoto/compromise-go/src/compromise"
-	"github.com/omakoto/compromise-go/src/compromise/compast"
+	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compast"
 	"github.com/omakoto/go-common/src/textio"
 	"regexp"
 	"strconv"
