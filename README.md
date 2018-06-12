@@ -25,6 +25,7 @@ go get -u github.com/omakoto/compromise/src/cmds/...
  - Define completion in [a simple-ish language](src/cmds/compromise-go/go.go) that supports both Bash and Zsh.
  - Generate candidates with [custom Go functions](src/cmds/compromise-adb/adb.go).
  - Show description not only on Zsh but on Bash too.
+ <img src="https://raw.githubusercontent.com/omakoto/compromise/master/img/compromise-adb.png" width=600>
  
 ## Known Issues
 
