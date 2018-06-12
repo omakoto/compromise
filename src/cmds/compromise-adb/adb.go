@@ -6,8 +6,12 @@ import (
 	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/compmain"
 	"github.com/omakoto/go-common/src/shell"
+	"github.com/ungerik/go-dry"
+	"os"
+	"path"
 	"regexp"
 	"strings"
+	"github.com/omakoto/go-common/src/fileutils"
 )
 
 var (
@@ -31,6 +35,8 @@ func init() {
 	compfunc.Register("takeProcessName", takeProcessName)
 
 	compfunc.Register("takeLogcatFilter", takeLogcatFilter)
+
+	compfunc.Register("takeBuildModule", takeBuildModule)
 
 	compfunc.Register("setTargetDevice", compfunc.SetString(&targetOption, "-d"))
 	compfunc.Register("setTargetEmulator", compfunc.SetString(&targetOption, "-e"))
@@ -164,6 +170,53 @@ func takeLogcatFilter() compromise.CandidateList {
 	})
 }
 
+func takeBuildModuleReal() compromise.CandidateList {
+	// This one actually reads as json, but it's a bit slow...
+	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
+		var data map[string]interface{}
+		err := dry.FileUnmarshallJSON(path.Join(os.Getenv("OUT"), "module-info.json"), &data)
+		if err != nil {
+			return nil
+		}
+		ret := make([]compromise.Candidate, 0)
+		for k, _ := range data {
+			ret = append(ret, compromise.NewCandidateBuilder().Value(k).Build())
+		}
+		return ret
+	})
+}
+
+func takeBuildModule() compromise.CandidateList {
+
+	// Cheat version. It assumes the content looks like the following (i.e. one module each line):
+	/*
+{
+  "1x.sh": { "class": ["EXECUTABLES"],  "path": ["vendor/google_devices/marlin...
+  "26.0.cil": { "class": ["ETC"],  "path": ["system/sepolicy"],  "tags": ["opt...
+  :
+}
+	 */
+	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
+		file := path.Join(os.Getenv("OUT"), "module-info.json")
+		if !fileutils.FileExists(file) {
+			return nil
+		}
+		lines, err := dry.FileGetLines(file)
+		if err != nil {
+			return nil
+		}
+		ret := make([]compromise.Candidate, 0)
+		for _, line := range lines {
+			line = strings.TrimLeft(line, " \t\"")
+			p := strings.IndexByte(line, '"')
+			if p > 0 {
+				ret = append(ret, compromise.NewCandidateBuilder().Value(line[:p]).Build())
+			}
+		}
+		return ret
+	})
+}
+
 func main() {
 	compmain.Main(spec)
 }
@@ -171,6 +224,7 @@ func main() {
 var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() + `
 @command adb
 @command fastboot :fastboot
+@command atest :atest
 @command am :am
 @command pm :pm
 @command settings :settings
@@ -714,6 +768,37 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 	                                            # Things devices.
 			@cand takeFile	  
 	    help                                    # Show this help message.
+
+
+@label :atest
+	@switchloop "^-"
+		-h|--help            # Show this help message and exit
+		-b|--build           # Run a build.
+		-i|--install         # Install an APK.
+		-t|--test            # Run the tests. WARNING: Many test configs force cleanup of device after test run. In this case, -d must be used in previous test run to disable cleanup, for -t to work. Otherwise, device will need to be setup again with -i.		--help		# show help
+
+  		-s|--serial 				# The device to run the test on.
+			@cand takeDeviceSerial
+  		-d|--disable-teardown 		# Disables test teardown and cleanup.
+  		-m|--rebuild-module-info	# Forces a rebuild of the module-info.json file. This may be necessary following a repo sync or when writing a new test.
+  		-w|--wait-for-debugger		# Only for instrumentation tests. Waits for debugger prior to execution.
+  		-v|--verbose         		# Display DEBUG level logging.
+  		--generate-baseline			# Generate baseline metrics, run 5 iterations by default. Provide an int argument to specify # iterations.
+			@any # Number of iterations.
+  		
+		--generate-new-metrics		# Generate new metrics, run 5 iterations by default. Provide an int argument to specify # iterations. 
+			@any # Number of iterations.
+                        
+  		--detect-regression 		# Run regression detection algorithm. Supply path to baseline and/or new metrics folders.
+			@loop
+				@cand takeFile
+		--
+			@break		// TODO Compromise doesn't recoginze it and still suggests flags after --.
+
+	@switchloop
+		@cand takeFile	// TODO Support #method1,method2,...
+					
+		@cand takeBuildModule
 
 
 `
