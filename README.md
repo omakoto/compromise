@@ -1,8 +1,8 @@
-# Compromise / Compromise-{adb,go}
+# Compromise (and Bash/Zsh completion for ADB and go)
 
 Compromise is a Go framework for writing shell completion for Bash / Zsh.
 
-Currently it comes with two sets of (_unfinished_) completion:
+Currently it comes with two sets of completion:
 
  - ADB (Android Debug Bridge), fastboot and atest
  - Go
@@ -14,11 +14,16 @@ Currently it comes with two sets of (_unfinished_) completion:
 ## Installing ADB and/or Go completion
 
 ```sh
+# Get and install the binaries.
 go get -u github.com/omakoto/compromise/src/cmds/...
 
+# Then to install completion, run them on your shell.
 . <(compromise-adb) # Install ADB completion
 . <(compromise-go)  # Install Go completion
+
 ```
+ 
+ *NOTE `go run` won't work; you need to actually compile them.* 
 
 ## Features
 
