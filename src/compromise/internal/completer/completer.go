@@ -306,10 +306,10 @@ func (e *Engine) executeSwitchLoop(n *compast.Node, doSwitch bool, doLoop bool, 
 		})
 
 		if collecting {
-			if m && doSwitch && n.PatternMatches(e.commandLine.WordAt(0)) {
-				// TODO Hmm is this logic really correct...?
-				panicFinish("word consumed by switch")
-			}
+			//if m && doSwitch && n.PatternMatches(e.commandLine.WordAt(0)) {
+			//	// TODO Hmm is this logic really correct...?
+			//	panicFinish("word consumed by switch")
+			//}
 			compdebug.Debugf("[#%d] still collecting, continuing to the caller...\n", id)
 			break
 		}
