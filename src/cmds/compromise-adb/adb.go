@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -24,6 +25,12 @@ var (
 
 func init() {
 	compfunc.Register("takeDevicePackage", takeDevicePackage)
+	compfunc.Register("takeDevicePackageComponent", takeDevicePackageComponent)
+	compfunc.Register("takeDeviceActivity", takeDeviceActivity)
+	compfunc.Register("takeDeviceService", takeDeviceService)
+	compfunc.Register("takeDeviceReceiver", takeDeviceReceiver)
+	compfunc.Register("takeDeviceProvider", takeDeviceProvider)
+	compfunc.Register("takeDeviceInstrumentation", takeDeviceInstrumentation)
 	compfunc.Register("takeDeviceFile", takeDeviceFile)
 	compfunc.Register("takeDeviceCommand", takeDeviceCommand)
 	compfunc.Register("takeDeviceSerial", takeDeviceSerial)
@@ -222,6 +229,125 @@ func takeBuildModule(args []string) compromise.CandidateList {
 			}
 		}
 		return ret
+	})
+}
+
+func getPackageComponents(pkg string) (activities, services, receivers, providers, instrumentations, all []string) {
+	bdump, err := compfunc.ExecAndGetStdout(adb() + " shell dumpsys package --all-components " + pkg)
+	if err != nil {
+		return
+	}
+
+	var target *[]string
+
+	const indent = "    "
+	header := regexp.MustCompile(`^` + indent + `(activities:|services:|receivers:|providers:|instrumentations:|[^ ].*)$`)
+	for _, line := range strings.Split(string(bdump), "\n") {
+		if header.MatchString(line) {
+			// fmt.Fprintf(os.Stderr, "  * %s\n", line)
+			target = nil
+			switch line {
+			case indent + "activities:":
+				target = &activities
+			case indent + "services:":
+				target = &services
+			case indent + "receivers:":
+				target = &receivers
+			case indent + "providers:":
+				target = &providers
+			case indent + "instrumentations:":
+				target = &instrumentations
+			}
+			if target != nil {
+				*target = make([]string, 0)
+			}
+		}
+		if target != nil {
+			*target = append(*target, strings.Trim(line, compfunc.Space))
+		}
+	}
+	sort.Strings(activities)
+	sort.Strings(services)
+	sort.Strings(receivers)
+	sort.Strings(providers)
+	sort.Strings(instrumentations)
+
+	all = make([]string, 0)
+	all = append(all, activities...)
+	all = append(all, services...)
+	all = append(all, receivers...)
+	all = append(all, providers...)
+	all = append(all, instrumentations...)
+	sort.Strings(all)
+
+	return
+}
+
+func getPackageActivities(pkg string) []string {
+	ret, _, _, _, _, _ := getPackageComponents(pkg)
+	return ret
+}
+
+func getPackageServices(pkg string) []string {
+	_, ret, _, _, _, _ := getPackageComponents(pkg)
+	return ret
+}
+
+func getPackageReceivers(pkg string) []string {
+	_, _, ret, _, _, _ := getPackageComponents(pkg)
+	return ret
+}
+
+func getPackageProviders(pkg string) []string {
+	_, _, _, ret, _, _ := getPackageComponents(pkg)
+	return ret
+}
+
+func getPackageInstrumentations(pkg string) []string {
+	_, _, _, _, ret, _ := getPackageComponents(pkg)
+	return ret
+}
+
+func getPackageAllComponents(pkg string) []string {
+	_, _, _, _, _, ret := getPackageComponents(pkg)
+	return ret
+}
+
+func takeDeviceActivity() compromise.CandidateList {
+	return takeDeviceComponentInner(getPackageActivities)
+}
+
+func takeDeviceService() compromise.CandidateList {
+	return takeDeviceComponentInner(getPackageServices)
+}
+
+func takeDeviceReceiver() compromise.CandidateList {
+	return takeDeviceComponentInner(getPackageReceivers)
+}
+
+func takeDeviceProvider() compromise.CandidateList {
+	return takeDeviceComponentInner(getPackageProviders)
+}
+
+func takeDeviceInstrumentation() compromise.CandidateList {
+	return takeDeviceComponentInner(getPackageInstrumentations)
+}
+
+func takeDevicePackageComponent() compromise.CandidateList {
+	return takeDeviceComponentInner(getPackageAllComponents)
+}
+
+func takeDeviceComponentInner(fetcher func(string) []string) compromise.CandidateList {
+	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
+		p := strings.Index(prefix, "/")
+		if p < 0 {
+			return takeDevicePackage().GetCandidate(prefix)
+		} else if p == 0 {
+			return nil
+		}
+		return compfunc.StringsToCandidates(fetcher(prefix[0:p]), func(line int, s string, b *compromise.CandidateBuilder) {
+			b.Value(s)
+		})
 	})
 }
 
@@ -778,16 +904,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 @label :intent_body
 	@switch
 		// TODO A URI is accepted here.	 
-		@cand takeDevicePackage // TODO Or, a component name. Need to add a pm command to get components.  
-
-
-
-
-
-
-
-
-
+		@cand takeDeviceActivity  
 
 
 @label :fastboot // TODO support device serial completion.

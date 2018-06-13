@@ -75,33 +75,39 @@ func BuildCandidateListFromCommandWithBuilder(command string, mapFunc func(line 
 				b.Value(s)
 			}
 		}
-		compdebug.Debugf("Executing: %q\n", command)
+		output, _ := ExecAndGetStdout(command)
 
-		cmd := exec.Command("/bin/sh", "-c", command)
-		cmd.Stderr = os.Stderr
-		output, err := cmd.Output()
-
-		if err != nil {
-			common.Warnf("Command execution error: command=%q error=%s", command, err)
-		}
-
-		ret := make([]compromise.Candidate, 0)
-
-		if output != nil {
-			for i, line := range bytes.Split(output, []byte("\n")) {
-				compdebug.Debugf(" ->%q\n", line)
-
-				b := compromise.NewCandidateBuilder()
-				mapFunc(i, string(line), b)
-				c := b.Build()
-				if len(c.Value()) > 0 {
-					ret = append(ret, c)
-				}
-			}
-		}
-
-		return ret
+		return StringsToCandidates(strings.Split(string(output), "\n"), mapFunc)
 	})
+}
+
+func StringsToCandidates(vals []string, mapFunc func(line int, s string, b *compromise.CandidateBuilder)) []compromise.Candidate {
+	ret := make([]compromise.Candidate, 0)
+
+	for i, v := range vals {
+		compdebug.Debugf(" ->%q\n", v)
+
+		b := compromise.NewCandidateBuilder()
+		mapFunc(i, v, b)
+		c := b.Build()
+		if len(c.Value()) > 0 {
+			ret = append(ret, c)
+		}
+	}
+	return ret
+}
+
+func ExecAndGetStdout(command string) ([]byte, error) {
+	compdebug.Debugf("Executing: %q\n", command)
+
+	cmd := exec.Command("/bin/sh", "-c", command)
+	cmd.Stderr = os.Stderr
+	output, err := cmd.Output()
+
+	if err != nil {
+		common.Warnf("Command execution error: command=%q error=%s", command, err)
+	}
+	return output, err
 }
 
 func AnyWithHelp(help string) compromise.Candidate {
