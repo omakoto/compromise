@@ -2,7 +2,7 @@
 
 Compromise is a Go framework for writing shell completion for Bash / Zsh.
 
-Currently it comes with two sets of (unfinished) completion:
+Currently it comes with two sets of (_unfinished_) completion:
 
  - ADB (Android Debug Bridge), fastboot and atest
  - Go
@@ -24,7 +24,8 @@ go get -u github.com/omakoto/compromise/src/cmds/...
 
  - Define completion in [a simple-ish language](src/cmds/compromise-go/go.go) that supports both Bash and Zsh.
  - Generate candidates with [custom Go functions](src/cmds/compromise-adb/adb.go).
- - Show description not only on Zsh but on Bash too.
+ - Show candidate description not only on Zsh but on Bash too.
+   - On Bash, completion candidates look like this:
  <img src="https://raw.githubusercontent.com/omakoto/compromise/master/img/compromise-adb.png" width=600>
  
 ## Known Issues

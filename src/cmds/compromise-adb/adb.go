@@ -186,7 +186,11 @@ func takeBuildModuleReal() compromise.CandidateList {
 	})
 }
 
-func takeBuildModule() compromise.CandidateList {
+func takeBuildModule(args []string) compromise.CandidateList {
+	var re *regexp.Regexp
+	if len(args) > 0 {
+		re = regexp.MustCompile(args[0])
+	}
 
 	// Cheat version. It assumes the content looks like the following (i.e. one module each line):
 	/*
@@ -209,8 +213,12 @@ func takeBuildModule() compromise.CandidateList {
 		for _, line := range lines {
 			line = strings.TrimLeft(line, " \t\"")
 			p := strings.IndexByte(line, '"')
-			if p > 0 {
-				ret = append(ret, compromise.NewCandidateBuilder().Value(line[:p]).Build())
+			if p <= 0 {
+				continue
+			}
+			name := line[:p]
+			if re == nil || re.FindStringIndex(name) != nil {
+				ret = append(ret, compromise.NewCandidateBuilder().Value(name).Build())
 			}
 		}
 		return ret
@@ -798,7 +806,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 	@switchloop
 		@cand takeFile	// TODO Support #method1,method2,...
 					
-		@cand takeBuildModule
+		@cand takeBuildModule "(Test|^Bug)"
 
 
 `
