@@ -26,15 +26,17 @@ go get -u github.com/omakoto/compromise/src/cmds/...
  
  *NOTE `go run` won't work; you need to actually compile them.*
  
-### Creating aliases to direct dumpsys/etc 
- - `compromise-adb` also installs completion for some "shortcut" commands,
+### Creating aliases to directly to subcommands 
+ - `compromise-adb` also installs completion for some "shorthand" commands,
 so if you have following aliases, completion will work for them too.
 
 ```bash
+alias logcat="adb logcat"
 alias dumpsys="adb shell dumpsys"
 alias cmd="adb shell cmd"
 alias am="adb shell am"
 alias pm="adb shell pm"
+alias settings="adb shell settings"
   :
 ```  
 For the full supported command name list, see [the source code](src/cmds/compromise-adb/adb.go).
