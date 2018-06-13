@@ -2,17 +2,23 @@ package main
 
 import (
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/compmain"
 )
 
 func init() {
+	compfunc.Register("takeToolName", takeToolName)
 }
 
 func main() {
 	compmain.Main(spec)
 }
 
-// TODO Finish it...
+func takeToolName() compromise.CandidateList {
+	return compfunc.BuildCandidateListFromCommandWithMap("go tool", func(line int, s string) string {
+		return s
+	})
+}
 
 var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() + `
 @command go
@@ -27,11 +33,8 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
         env         # print Go environment information
 			@call :env
 
-		//TODO: this is not used very often and conflict with "build" so
-		//commenting out for now.
-		//But we can revive it once "hidden" candidates are implemented.
+		//This is not used very often and conflict with "build" so commenting out.
         //bug         # start a bug report
-		//	@call :bug
 
         fix         # update packages to use new APIs
 			@call :fix
@@ -52,7 +55,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
         tool        # run specified go tool
 			@call :tool
         version     # print Go version
-			@call :version
+
         vet         # report likely mistakes in packages
 			@call :vet
 		help        # show help for a command or a topic
@@ -209,15 +212,13 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		@switchloop "^-"
 			@call :buildflags
 		
-		@cand takedir
+		@call :packages
 
 @label :clean
 		@switchloop "^-"
 				@call :buildflags
 		
-		@loop
-			@cand takedir
-
+		@call :packages
 
 @label :doc
 		@switchloop "^-"
@@ -231,36 +232,161 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		                #Show documentation for unexported as well as exported \
 		                #symbols, methods, and fields.
 		@switchloop
-			@cand takedir
+			@call :package
 			@any #[package|[package.]symbol[.methodOrField]]
 
 
 @label :env
-@label :bug
+		@switch "^-"
+		        -json # prints the environment in JSON format instead of as a shell script.
+		@loop
+			@any # var name
+
 @label :fix
+		@call :packages
 
 @label :fmt
-	@switchloop "^-"
-		-n #prints commands that would be executed.
-		-x #prints commands as they are executed.
+		@switchloop "^-"
+			-n #prints commands that would be executed.
+			-x #prints commands as they are executed.
 
-	@loop
-		@cand takedir
+		@call :packages
 
 @label :generate
+		@switchloop "^-"
+			-run #\
+                # if non-empty, specifies a regular expression to select \
+                # directives whose full original source text (excluding \
+                # any trailing spaces and final newline) matches the \
+                # expression.
+				@any # pattern
+
+			-v 	# prints the names of packages and files as they are processed.
+			-n 	# prints commands that would be executed.
+			-x 	# prints commands as they are executed.
+
+		@call :gofiles
+
 @label :get
+		@switchloop "^-"
+			-d 	# instructs get to stop after downloading the packages; that is, \
+				# it instructs get not to install the packages.
+			
+			-f 	# valid only when -u is set, forces get -u not to verify that \
+				# each package has been checked out from the source control repository \
+				# implied by its import path. This can be useful if the source is a local fork \
+				# of the original.
+			
+			-fix # instructs get to run the fix tool on the downloaded packages \
+				# before resolving dependencies or building the code.
+			
+			-insecure # permits fetching from repositories and resolving \
+				# custom domains using insecure schemes such as HTTP. Use with caution.
+			
+			-t # instructs get to also download the packages required to build \
+				# the tests for the specified packages.
+			
+			-u  # instructs get to use the network to update the named packages \
+				# and their dependencies. By default, get uses the network to check out \
+				# missing packages but does not use it to look for updates to existing packages.
+			
+			-v # enables verbose progress and debug output.
+			@call :buildflags
+	
+		@call :packages
+
 
 @label :install
-	@switchloop "^-"
-		@call :buildflags
-		-i 		#installs the dependencies of the named packages as well.
-	@loop
-		@cand takedir
+		@switchloop "^-"
+			-i 		#installs the dependencies of the named packages as well.
+			@call :buildflags
+
+		@call :packages
 
 @label :list
+		@switchloop "^-"
+			-json 	# causes the package data to be printed in JSON format instead of using the template format.
+			-e   	# changes the handling of erroneous packages, those that cannot be found or are malformed.
+			-f 		# flag specifies an alternate format for the list, using the syntax of package template.
+			@call :buildflags
+
+		@call :packages
+
 @label :run
+		@switchloop "^-"
+			-exec 	# -exec flag is given, 'go run' invokes the binary using xprog: 'xprog a.out arguments...'.
+				@any # xprog
+
+			@call :buildflags
+
+		@call :gofiles
+	
+		//@loop
+		//	@any # argument  // This doesn't work because the above call will eat all arguments...
+
 @label :test
+		@switchloop "^-"
+	        -args #\
+	            # Pass the remainder of the command line (everything after -args) \
+	            # to the test binary, uninterpreted and unchanged. \
+	            # Because this flag consumes the remainder of the command line, \
+	            # the package list (if present) must appear before this flag.
+	
+	        -c #\
+	            # Compile the test binary to pkg.test but do not run it \
+	            # (where pkg is the last element of the package's import path). \
+	            # The file name can be changed with the -o flag.
+	
+	        -exec #\
+	            # Run the test binary using xprog. The behavior is the same as \
+	            # in 'go run'. See 'go help run' for details.
+				@any # xprog
+	
+	        -i #\
+	            # Install packages that are dependencies of the test. \
+	            # Do not run the test.
+	
+	        -json #\
+	            # Convert test output to JSON suitable for automated processing. \
+	            # See 'go doc test2json' for the encoding details.
+	
+	        -o #\
+	            # Compile the test binary to the named file. \
+	            # The test still runs (unless -c or -i is specified).
+				@cand takeFile
+
+			@call :buildflags
+
+		@call :packages
+
 @label :tool
-@label :version
+		@switchloop "^-"
+			-n # causes tool to print the command that would be executed but not execute it.
+
+		@cand takeToolName
+
+		@loop
+			@cand takeFile
+
 @label :vet
+		@switchloop "^-"
+			-n # prints commands that would be executed.
+			-x # prints commands as they are executed.
+			@call :buildflags
+
+		@call :packages
+
+// Subroutines....
+
+@label :packages
+	@loop
+		@call :package
+
+@label :package
+	@cand takeDir
+
+@label :gofiles
+	@loop
+		@cand takeFile "\\.go$"
+
 `
