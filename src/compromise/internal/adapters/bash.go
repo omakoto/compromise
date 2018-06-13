@@ -74,7 +74,7 @@ func (p *bashParameters) Unescape(arg string) string {
 	return shell.Unescape(arg)
 }
 
-func (a *bashAdapter) Install(targetCommandNames []string, spec string) {
+func (a *bashAdapter) Install(targetCommandNames []string, specFile string) {
 	p := bashParameters{}
 	p.FuncName = getFuncName(targetCommandNames[0])
 	path, err := filepath.Abs(common.MustGetExecutable())
@@ -94,7 +94,7 @@ func (a *bashAdapter) Install(targetCommandNames []string, spec string) {
 		p.CompletionMapCase = "on"
 	}
 
-	p.SpecFile = saveSpec(targetCommandNames[0], spec)
+	p.SpecFile = specFile
 
 	tmpl, err := template.New("t").Parse(`
 # Install this script into bash with the following command:

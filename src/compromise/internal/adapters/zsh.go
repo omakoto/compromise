@@ -60,14 +60,14 @@ func (p *zshParameters) Unescape(arg string) string {
 	return shell.Unescape(arg)
 }
 
-func (a *zshAdapter) Install(targetCommandNames []string, spec string) {
+func (a *zshAdapter) Install(targetCommandNames []string, specFile string) {
 	p := zshParameters{}
 	p.FuncName = getFuncName(targetCommandNames[0])
 	path, err := filepath.Abs(common.MustGetExecutable())
 	common.Checkf(err, "Abs failed")
 	p.ExecutableName = path
 	p.CommandNames = targetCommandNames
-	p.SpecFile = saveSpec(targetCommandNames[0], spec)
+	p.SpecFile = specFile
 
 	tmpl, err := template.New("t").Parse(`
 # Install this script into bash with the following command:

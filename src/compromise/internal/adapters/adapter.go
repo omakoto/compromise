@@ -15,7 +15,7 @@ const (
 )
 
 type ShellAdapter interface {
-	Install(targetCommandNames []string, hereSpec string)
+	Install(targetCommandNames []string, specFile string)
 	HasMenuCompletion() bool
 
 	Escape(arg string) string
@@ -55,6 +55,8 @@ func GetShellAdapter(rd io.Reader, wr io.Writer) ShellAdapter {
 		return newBashAdapter(rd, wr)
 	case "zsh":
 		return newZshAdapter(rd, wr)
+	case "tester":
+		return newTesterAdapter(rd, wr)
 	}
 	common.Fatalf("Unknown shell %s", shell)
 	return nil

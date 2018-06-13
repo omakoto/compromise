@@ -109,7 +109,8 @@ func PrintInstallScriptRaw(spec string, listCommandsOnly bool, commandsOverride 
 		adapter := adapters.GetShellAdapter(os.Stdin, os.Stdout)
 		defer adapter.Finish()
 
-		adapter.Install(commands, spec)
+		specFile := adapters.SaveSpec(commands[0], spec)
+		adapter.Install(commands, specFile)
 
 		if !compmisc.Quiet {
 			fmt.Fprintf(os.Stderr, "Installed completion: %s\n", strings.Join(commands, " "))

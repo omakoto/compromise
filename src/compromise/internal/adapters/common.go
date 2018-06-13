@@ -19,7 +19,7 @@ func specFileName(command string) string {
 	return filepath.Join(dir, "compspec_"+getUniqueName(command)+".txt")
 }
 
-func saveSpec(command, spec string) string {
+func SaveSpec(command, spec string) string {
 	file := specFileName(command)
 	err := ioutil.WriteFile(file, []byte(spec), 0600)
 	common.Checkf(err, "unable to write to %s", file)
