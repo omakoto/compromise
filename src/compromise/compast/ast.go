@@ -116,8 +116,9 @@ type Node struct {
 	lastVisitedWordIndex int
 
 	// Only root has the following items.
-	labels        map[string]*Node
-	commandJumpTo map[string]*Node
+	labels         map[string]*Node
+	commandJumpTo  map[string]*Node
+	targetCommands []string
 }
 
 func (n *Node) NodeType() int {
@@ -155,7 +156,9 @@ func (n *Node) AddChild(new *Node) {
 	}
 	switch new.nodeType {
 	case NodeCommand:
-		n.root.commandJumpTo[new.command.Word] = new
+		cmd := new.command.Word
+		n.root.commandJumpTo[cmd] = new
+		n.root.targetCommands = append(n.root.targetCommands, new.command.Word)
 	case NodeLabel:
 		n.root.labels[strings.ToLower(new.label.Word)] = new
 	}
@@ -321,9 +324,5 @@ func (n *Node) Args() []string {
 
 // Return command name listed with @command.
 func (n *Node) TargetCommands() []string {
-	keys := make([]string, 0, len(n.commandJumpTo))
-	for k := range n.commandJumpTo {
-		keys = append(keys, k)
-	}
-	return keys
+	return n.targetCommands
 }
