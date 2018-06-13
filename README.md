@@ -2,16 +2,23 @@
 
 Compromise is a Go framework for writing shell completion for Bash / Zsh.
 
-Currently it comes with the following completion:
+Currently it comes with the following two completions:
 
- - ADB (Android Debug Bridge), fastboot and atest
+ - ADB (Android Debug Bridge, including several shell commands), fastboot and atest
  - Go
-
 
 ## Caveat
  It's still in an alpha stage. Details are subject to change, but feedback is welcome.
 
-## Installing ADB and/or Go completion
+## Features
+
+ - Define completion in [an "obvious" language](src/cmds/compromise-go/go.go) that supports both Bash and Zsh.
+ - Generate dynamic candidates with [custom Go functions](src/cmds/compromise-adb/adb.go).
+ - Show candidate description not only on Zsh but on Bash too.
+   - On Bash, completion candidates look like this (type `adb[SPACE][TAB]`):
+ <img src="https://raw.githubusercontent.com/omakoto/compromise/master/img/compromise-adb.png" width=600>
+ 
+## Installing ADB and/or Go Completion
 
 Assuming you have the `go` command installed, just run the following commands in your shell.
 ```bash
@@ -26,7 +33,7 @@ go get -u github.com/omakoto/compromise/src/cmds/...
  
  *NOTE `go run` won't work; you need to actually compile them.*
  
-### Creating aliases to directly to subcommands 
+### Creating Aliases to ADB Subcommands
  - `compromise-adb` also installs completion for some "shorthand" commands,
 so if you have following aliases, completion will work for them too.
 
@@ -37,6 +44,8 @@ alias cmd="adb shell cmd"
 alias am="adb shell am"
 alias pm="adb shell pm"
 alias settings="adb shell settings"
+alias akill="adb shell akill"
+alias akillall="adb shell akillall"
   :
 ```  
 For the full supported command name list, see [the source code](src/cmds/compromise-adb/adb.go).
@@ -45,17 +54,9 @@ For the full supported command name list, see [the source code](src/cmds/comprom
    in the source file, pass the command name you want to use as arguments. Example: 
 
 ```bash
-. <(compromise-adb adb dumpsys) # Only install competion for the adb command.  
+. <(compromise-adb adb dumpsys) # Only install competion for the adb and dumpsys commands.  
 ```
 
-## Features
-
- - Define completion in [a simple-ish language](src/cmds/compromise-go/go.go) that supports both Bash and Zsh.
- - Generate candidates with [custom Go functions](src/cmds/compromise-adb/adb.go).
- - Show candidate description not only on Zsh but on Bash too.
-   - On Bash, completion candidates look like this (type `adb[SPACE][TAB]`):
- <img src="https://raw.githubusercontent.com/omakoto/compromise/master/img/compromise-adb.png" width=600>
- 
 ## Known Issues
 
  - Not heavily tested on Zsh yet.
