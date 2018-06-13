@@ -17,11 +17,11 @@ func getBoolEnv(name string, def bool) bool {
 }
 
 var (
+	// Whether to suppress verbose output or not.
+	Quiet = getBoolEnv("COMPROMISE_QUIET", false)
+
 	// Whether to enable debug log or not.
 	DebugEnabled = getBoolEnv("COMPROMISE_DEBUG", false)
-
-	// Whether to enable verbose output or not.
-	Verbose = getBoolEnv("COMPROMISE_VERBOSE", true)
 
 	// Whether to enable timing log or not.
 	Time = getBoolEnv("COMPROMISE_TIME", false)

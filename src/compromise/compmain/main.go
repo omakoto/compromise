@@ -111,8 +111,8 @@ func PrintInstallScriptRaw(spec string, listCommandsOnly bool, commandsOverride 
 
 		adapter.Install(commands, spec)
 
-		if compmisc.Verbose {
-			fmt.Fprintf(os.Stderr, "Installed completion for %s\n", strings.Join(commands, " "))
+		if !compmisc.Quiet {
+			fmt.Fprintf(os.Stderr, "Installed completion: %s\n", strings.Join(commands, " "))
 		}
 	})
 }
