@@ -51,7 +51,7 @@ For the full supported command name list, see [the source code](src/cmds/comprom
  - Define completion in [a simple-ish language](src/cmds/compromise-go/go.go) that supports both Bash and Zsh.
  - Generate candidates with [custom Go functions](src/cmds/compromise-adb/adb.go).
  - Show candidate description not only on Zsh but on Bash too.
-   - On Bash, completion candidates look like this:
+   - On Bash, completion candidates look like this (type `adb[SPACE][TAB]`):
  <img src="https://raw.githubusercontent.com/omakoto/compromise/master/img/compromise-adb.png" width=600>
  
 ## Known Issues
@@ -60,3 +60,4 @@ For the full supported command name list, see [the source code](src/cmds/comprom
 
 ## TODOs
  - Write tests
+ - Add menu completion for bash using [FZF](https://github.com/junegunn/fzf).
