@@ -84,6 +84,10 @@ func (c *candidate) Matches(prefix string) bool {
 	return c.Force() || StringMatches(c.value, prefix)
 }
 
+func (c *candidate) MatchesFully(target string) bool {
+	return c.Force() || (c.value == target)
+}
+
 func (c *candidate) GetCandidate(prefix string) []Candidate {
 	if c.Matches(prefix) {
 		return []Candidate{c}

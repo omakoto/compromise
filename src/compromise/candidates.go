@@ -18,6 +18,8 @@ type CandidateList interface {
 	GetCandidate(prefix string) []Candidate
 
 	Matches(word string) bool
+
+	MatchesFully(word string) bool
 }
 
 // OpenCandidates generates an "open" CandidateList from a given list of Candidate's.
@@ -55,7 +57,19 @@ func (s *staticCandidates) Matches(word string) bool {
 		return true
 	}
 	for _, s := range s.candidates {
-		if s.Matches(word) {
+		if s.MatchesFully(word) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *staticCandidates) MatchesFully(word string) bool {
+	if !s.strict {
+		return true
+	}
+	for _, s := range s.candidates {
+		if s.MatchesFully(word) {
 			return true
 		}
 	}
@@ -73,6 +87,11 @@ func (s *lazyCandidates) GetCandidate(prefix string) []Candidate {
 }
 
 func (s *lazyCandidates) Matches(word string) bool {
+	// Lazy candidates always assumes any non-empty string matches one of the candidates.
+	return len(word) > 0
+}
+
+func (s *lazyCandidates) MatchesFully(word string) bool {
 	// Lazy candidates always assumes any non-empty string matches one of the candidates.
 	return len(word) > 0
 }

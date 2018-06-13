@@ -12,6 +12,7 @@ import (
 	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
 	"github.com/omakoto/compromise/src/compromise/internal/parser"
 	"github.com/omakoto/go-common/src/common"
+	"github.com/omakoto/go-common/src/utils"
 	"sync/atomic"
 )
 
@@ -132,42 +133,46 @@ func (e *Engine) executeNode(n *compast.Node, doSwitch bool, matched *bool) {
 		m := false
 		collecting := e.collecting()
 
-		switch n.NodeType() {
-		case compast.NodeCommand:
+		if n.NodeType() == compast.NodeCommand {
 			// Just skip and move to next. Don't advance PC.
 			continue
-
-		case compast.NodeLabel: // Note: for flow control purposes, it's used as return.
-			panic(newFlowControl(n))
-
-		case compast.NodeFinish, compast.NodeBreak, compast.NodeContinue:
-			panic(newFlowControl(n))
-
-		case compast.NodeSwitch:
-			e.executeSwitchLoop(n, true, false, &m)
-		case compast.NodeSwitchLoop:
-			e.executeSwitchLoop(n, true, true, &m)
-		case compast.NodeLoop:
-			e.executeSwitchLoop(n, false, true, &m)
-
-		case compast.NodeAny:
-			e.executeAny(n, doSwitch, &m)
-		case compast.NodeCandidate:
-			e.executeCandidate(n, doSwitch, &m)
-		case compast.NodeLiteral:
-			e.executeLiteral(n, doSwitch, &m)
-
-		case compast.NodeCall:
-			e.executeCall(n, doSwitch, &m)
-		case compast.NodeGoCall:
-			e.executeGoCall(n, &m)
-		default:
-			panic(fmt.Errorf("unexpected node %s", n))
 		}
-		compdebug.Debugf("[#%d] result=%v\n", id, m)
-		if m {
-			*matched = true
-		}
+
+		utils.DoAndEnsure(func() {
+			switch n.NodeType() {
+			case compast.NodeLabel: // Note: for flow control purposes, it's used as return.
+				panic(newFlowControl(n))
+
+			case compast.NodeFinish, compast.NodeBreak, compast.NodeContinue:
+				panic(newFlowControl(n))
+
+			case compast.NodeSwitch:
+				e.executeSwitchLoop(n, true, false, &m)
+			case compast.NodeSwitchLoop:
+				e.executeSwitchLoop(n, true, true, &m)
+			case compast.NodeLoop:
+				e.executeSwitchLoop(n, false, true, &m)
+
+			case compast.NodeAny:
+				e.executeAny(n, doSwitch, &m)
+			case compast.NodeCandidate:
+				e.executeCandidate(n, doSwitch, &m)
+			case compast.NodeLiteral:
+				e.executeLiteral(n, doSwitch, &m)
+
+			case compast.NodeCall:
+				e.executeCall(n, doSwitch, &m)
+			case compast.NodeGoCall:
+				e.executeGoCall(n, &m)
+			default:
+				panic(fmt.Errorf("unexpected node %s", n))
+			}
+		}, func() {
+			compdebug.Debugf("[#%d] result=%v\n", id, m)
+			if m {
+				*matched = true
+			}
+		})
 
 		if doSwitch {
 			if collecting {
@@ -195,11 +200,9 @@ func (e *Engine) executeCall(n *compast.Node, doSwitch bool, matched *bool) {
 	label := n.LabelWord()
 	target := e.astRoot.GetLabeledNode(label, n.Label()).Child()
 
-	m := false
 	doWithFlowControl(catchReturn(), func() {
-		e.executeNode(target, doSwitch, &m)
+		e.executeNode(target, doSwitch, matched)
 	})
-	*matched = m
 }
 
 func (e *Engine) executeAny(n *compast.Node, doSwitch bool, matched *bool) {
@@ -241,11 +244,14 @@ func (e *Engine) executeCandidateNode(n *compast.Node, doSwitch bool, genCands f
 	}
 
 	// Otherwise, if it has children, we need to go deeper.
-	if genCands().Matches(curWord) {
+	if genCands().MatchesFully(curWord) {
 		e.advancePc("literal matched")
 		m := false
-		e.executeNode(n.Child(), false, &m)
+
+		// Note we don't need to propagate matched here. As long as this node matches,
+		// we still report "match" to the caller.
 		*matched = true
+		e.executeNode(n.Child(), false, &m)
 		return
 	}
 	*matched = false
@@ -254,11 +260,11 @@ func (e *Engine) executeCandidateNode(n *compast.Node, doSwitch bool, genCands f
 func (e *Engine) executeGoCall(n *compast.Node, matched *bool) {
 	// @go_call: When we reach a @go_call, we always executes the function, but no states will change.
 	funcName := n.FuncName().Word
+	*matched = true // Always matches but don't advance PC.
 	ret := compfunc.Invoke(funcName, e.commandLine, n.Args())
 	if ret != nil {
 		panic(compromise.NewSpecErrorf(n.FuncName(), "@go_call function %s must not return values", funcName))
 	}
-	*matched = true // Always matches but don't advance PC.
 }
 
 func (e *Engine) executeSwitchLoop(n *compast.Node, doSwitch bool, doLoop bool, matched *bool) {
@@ -287,13 +293,17 @@ func (e *Engine) executeSwitchLoop(n *compast.Node, doSwitch bool, doLoop bool, 
 		m := false
 		collecting := e.collecting()
 
-		fc := doWithFlowControl(catchLoopControl(myLabel), func() {
-			e.executeNode(n.Child(), doSwitch, &m)
+		var fc *flowControl
+		utils.DoAndEnsure(func() {
+			fc = doWithFlowControl(catchLoopControl(myLabel), func() {
+				e.executeNode(n.Child(), doSwitch, &m)
+			})
+		}, func() {
+			compdebug.Debugf("[#%d]  result=%v\n", id, m)
+			if m {
+				*matched = true
+			}
 		})
-		compdebug.Debugf("[#%d]  result=%v\n", id, m)
-		if m {
-			*matched = true
-		}
 
 		if collecting {
 			if m && doSwitch && n.PatternMatches(e.commandLine.WordAt(0)) {
