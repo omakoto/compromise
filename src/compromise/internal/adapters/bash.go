@@ -59,7 +59,6 @@ func newBashAdapter(rd io.Reader, wr io.Writer) *bashAdapter {
 type bashParameters struct {
 	FuncName             string
 	ExecutableName       string
-	SectionSeparator     string
 	CommandNames         []string
 	SkipBashBind         string
 	SpecFile             string
@@ -81,7 +80,6 @@ func (a *bashAdapter) Install(targetCommandNames []string, spec string) {
 	path, err := filepath.Abs(common.MustGetExecutable())
 	common.Checkf(err, "Abs failed")
 	p.ExecutableName = path
-	p.SectionSeparator = bashSectionSeparator
 	p.CommandNames = targetCommandNames
 	p.SkipBashBind = "0"
 	if compmisc.BashSkipBind {
@@ -121,7 +119,7 @@ fi
 # to compromise.
 function __compromise_context_dumper {
   declare -p
-  echo -n "{{.SectionSeparator}}"
+  echo -n "` + bashSectionSeparator + `"
   jobs
 }
 
