@@ -455,12 +455,41 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		-g		# grant all runtime permissions
 
 @label :am
+	@switch
+		start-activity			# Start an Activity.
+			@switchloop "^-"
+				@call :intent_flags
 
+      			-D # enable debugging
+      			-N # enable native debugging
+      			-W # wait for launch to complete
+      			--start-profiler # start profiler and send results to <FILE>
+					@cand takeFile
+      			--sampling # use sample profiling with INTERVAL microseconds between samples (use with --start-profiler)
+					@any # INTERVAL microseconds between samples
+      			--streaming # stream the profiling output to the specified file (use with --start-profiler)
+      			-P # like above, but profiling stops when app goes idle
+					@cand takeFile
+      			--attach-agent # attach the given agent before binding
+					@any # agent
+      			-R # repeat the activity launch <COUNT> times.  Prior to each repeat, the top activity will be finished.
+					@any # COUNT
+      			-S # force stop the target app before starting the activity
+      			--track-allocation # enable tracking of object allocations
+      			--stack # Specify into which stack should the activity be put.
+					@any  #STACK_ID
+				@call :take_user_id
+			
+			@call :intent_body
+
+	// TODO Implement other commands...
+		
 @label :pm
 	@switch
 		dump	# dump package
 			@cand takeDevicePackage
 
+	// TODO Implement other commands...
 
 @label :dumpsys
 	@cand takeService
@@ -472,13 +501,13 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 	@switch
 		//   get [--user <USER_ID> | current] NAMESPACE KEY
 		get			# Retrieve the current value of KEY
-			@call :settings_user
+			@call :take_user_id
 			@call :settings_namespace	
 			@cand takeSettingKey
 		
 		//   put [--user <USER_ID> | current] NAMESPACE KEY VALUE [TAG] [default]
 		put			# Change the contents of KEY to VALUE
-			@call :settings_user
+			@call :take_user_id
 			@call :settings_namespace
 			@cand takeSettingKey
 			@any    # <value> value to set
@@ -493,7 +522,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		
 		//   reset [--user <USER_ID> | current] NAMESPACE {PACKAGE_NAME | RESET_MODE}
 		reset		# Reset the global/secure table for a package with mode
-			@call :settings_user
+			@call :take_user_id
 			@call :settings_namespace
 			@switch
 				@cand takeDevicePackage
@@ -506,7 +535,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@call :settings_namespace
 		
 // settings " --user [ X | current ] "
-@label :settings_user	
+@label :take_user_id	
 	@switch "^-"
 		--user
 			@switch
@@ -641,6 +670,125 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 	@loop
 		@cand takeLogcatFilter
+
+@label :intent
+	@switchloop "^-"
+		@call :intent_flags
+	@call :intent_body
+
+@label :intent_flags
+	    -a #<ACTION>
+		    @any #ACTION
+		-d #<DATA_URI>
+			@any #DATA_URI
+		-t #<MIME_TYPE>
+			@any #MIME_TYPE
+	    -c #<CATEGORY>
+		    @any #CATEGORY
+	    -e|--es #<EXTRA_KEY> <EXTRA_STRING_VALUE>
+			@any #EXTRA_KEY
+			@any #EXTRA_STRING_VALUE
+	    --esn #<EXTRA_KEY> ...
+			@any #EXTRA_KEY
+	    --ez #<EXTRA_KEY> <EXTRA_BOOLEAN_VALUE>
+			@any #EXTRA_KEY
+			@any #EXTRA_BOOLEAN_VALUE
+	    --ei #<EXTRA_KEY> <EXTRA_INT_VALUE>
+			@any #EXTRA_KEY
+			@any #EXTRA_INT_VALUE
+	    --el #<EXTRA_KEY> <EXTRA_LONG_VALUE>
+			@any #EXTRA_KEY
+			@any #EXTRA_LONG_VALUE
+	    --ef #<EXTRA_KEY> <EXTRA_FLOAT_VALUE>
+			@any #EXTRA_KEY
+			@any #EXTRA_FLOAT_VALUE
+	    --eu #<EXTRA_KEY> <EXTRA_URI_VALUE>
+			@any #EXTRA_KEY
+			@any #EXTRA_URI_VALUE
+	    --ecn #<EXTRA_KEY> <EXTRA_COMPONENT_NAME_VALUE>
+			@any #EXTRA_KEY
+			@cand takeDevicePackage // TODO Change to ComponentName
+	
+	    --eia #<EXTRA_KEY> <EXTRA_INT_VALUE>[,<EXTRA_INT_VALUE...] \
+	        #(mutiple extras passed as Integer[])
+			@any #EXTRA_KEY
+			@any #EXTRA_INT_VALUE,EXTRA_INT_VALUE,...
+	    --eial #<EXTRA_KEY> <EXTRA_INT_VALUE>[,<EXTRA_INT_VALUE...] \
+	        #(mutiple extras passed as List<Integer>)
+			@any #EXTRA_KEY
+			@any #EXTRA_INT_VALUE,EXTRA_INT_VALUE,...
+	    --ela #<EXTRA_KEY> <EXTRA_LONG_VALUE>[,<EXTRA_LONG_VALUE...] \
+	        #(mutiple extras passed as Long[])
+			@any #EXTRA_KEY
+			@any #EXTRA_LONG_VALUE,EXTRA_LONG_VALUE,...
+	    --elal #<EXTRA_KEY> <EXTRA_LONG_VALUE>[,<EXTRA_LONG_VALUE...] \
+	        #(mutiple extras passed as List<Long>)
+			@any #EXTRA_KEY
+			@any #EXTRA_LONG_VALUE,EXTRA_LONG_VALUE,...
+	    --efa #<EXTRA_KEY> <EXTRA_FLOAT_VALUE>[,<EXTRA_FLOAT_VALUE...] \
+	        #(mutiple extras passed as Float[])
+			@any #EXTRA_KEY
+			@any #EXTRA_FLOAT_VALUE,EXTRA_FLOAT_VALUE,...
+	    --efal #<EXTRA_KEY> <EXTRA_FLOAT_VALUE>[,<EXTRA_FLOAT_VALUE...] \
+	        #(mutiple extras passed as List<Float>)
+			@any #EXTRA_KEY
+			@any #EXTRA_FLOAT_VALUE,EXTRA_FLOAT_VALUE,...
+	    --esa #<EXTRA_KEY> <EXTRA_STRING_VALUE>[,<EXTRA_STRING_VALUE...] \
+	        #(mutiple extras passed as String[]; to embed a comma into a string, \
+	        #escape it using "\,")
+			@any #EXTRA_KEY
+			@any #EXTRA_STRING_VALUE,EXTRA_STRING_VALUE,...
+	    --esal #<EXTRA_KEY> <EXTRA_STRING_VALUE>[,<EXTRA_STRING_VALUE...] \
+	        #(mutiple extras passed as List<String>; to embed a comma into a string, \
+	        #escape it using "\,")
+			@any #EXTRA_KEY
+			@any #EXTRA_STRING_VALUE,EXTRA_STRING_VALUE,...
+
+	    -f # <FLAG>
+			@any # Intent flags (0xHEX, 0OCT or decimal) 
+	    --grant-read-uri-permission
+		--grant-write-uri-permission
+		--grant-persistable-uri-permission
+		--grant-prefix-uri-permission
+		--debug-log-resolution
+		--exclude-stopped-packages
+		--include-stopped-packages
+		--activity-brought-to-front
+		--activity-clear-top
+		--activity-clear-when-task-reset
+		--activity-exclude-from-recents
+		--activity-launched-from-history
+		--activity-multiple-task
+		--activity-no-animation
+		--activity-no-history
+		--activity-no-user-action
+		--activity-previous-is-top
+		--activity-reorder-to-front
+		--activity-reset-task-if-needed
+		--activity-single-top
+		--activity-clear-task
+		--activity-task-on-home
+		--receiver-registered-only
+		--receiver-replace-pending
+		--receiver-foreground
+		--receiver-no-abort
+	    --receiver-include-background
+	    --selector
+
+@label :intent_body
+	@switch
+		// TODO A URI is accepted here.  
+		@cand takeDevicePackage // TODO Or, a component name. Need to add a pm command to get components.  
+
+
+
+
+
+
+
+
+
+
 
 @label :fastboot // TODO support device serial completion.
 	@switchloop "^-"
