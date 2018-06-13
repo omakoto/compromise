@@ -454,36 +454,36 @@ func (a *bashAdapter) parseContext() {
 
 	tokens := shell.Split(split[0])
 	i := 0
+	compdebug.Debug("Extracting variables:\n")
 	for i+2 < len(tokens) {
 		decl := tokens[i]
 		if decl != "declare" {
 			compdebug.Warnf("Unable to parse variables\n", str)
 			break
 		}
+		compdebug.Debugf("  %q\n", tokens[i+2])
+
 		flags := tokens[i+1]
 		if strings.ContainsAny(flags, "aA") {
-			i += 2
-			if tokens[i] == "()" {
-				i++
-				continue
-			}
-			// It's an array or a hash.  Skip all until ")"
+			// It's an array or a hash.  Skip all until a ")" is found.
+			i += 3
 			for i < len(tokens) {
 				t := tokens[i]
 				i++
-				if t == ")" {
+				if t == ")" || t == "()" {
 					break
 				}
 			}
 			continue
 		}
 		nameAndVal := strings.SplitN(tokens[i+2], "=", 2)
+		name := nameAndVal[0]
 		val := ""
 		if len(nameAndVal) == 2 {
 			val = nameAndVal[1]
 		}
 
-		a.variables[nameAndVal[0]] = shell.Unescape(val)
+		a.variables[name] = shell.Unescape(val)
 
 		i += 3
 	}

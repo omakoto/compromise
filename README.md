@@ -33,5 +33,4 @@ go get -u github.com/omakoto/compromise/src/cmds/...
  - Not heavily tested on Zsh yet.
 
 ## TODOs
-
- - The "declare -p" parser fails to extract some variables in some cases.
+ - Write tests
