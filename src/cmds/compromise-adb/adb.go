@@ -606,7 +606,37 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 					@any  #STACK_ID
 				@call :take_user_id
 			
-			@call :intent_body
+			@call :intent_body_activity
+
+		start-service|start-foreground-service|stop-service		# Start/stop a service.
+			@switchloop "^-"
+				@call :intent_flags
+				@call :take_user_id
+			
+			@call :intent_body_service
+
+		broadcast		# Send a broadcast.
+			@switchloop "^-"
+				@call :intent_flags
+				@call :take_user_id
+			
+			@call :intent_body_receiver
+
+
+		instrument // TODO
+		trace-ipc  // TODO
+		profile    // TODO
+			
+		dumpheap
+			@switchloop "^-"
+				-n		# dump native heap instead of managed heap
+				-g		# force GC before dumping the heap
+				@call :take_user_id
+		
+			@switch
+				@cand takeProcessName
+
+			@cand takeFile
 
 	// TODO Implement other commands...
 		
@@ -800,7 +830,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 @label :intent
 	@switchloop "^-"
 		@call :intent_flags
-	@call :intent_body
+	@cand takeDevicePackageComponent  
 
 @label :intent_flags
 		-a #<ACTION>
@@ -901,10 +931,14 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		--receiver-include-background
 		--selector
 
-@label :intent_body
-	@switch
-		// TODO A URI is accepted here.	 
-		@cand takeDeviceActivity  
+@label :intent_body_activity
+	@cand takeDeviceActivity  
+
+@label :intent_body_service
+	@cand takeDeviceService  
+
+@label :intent_body_receiver
+	@cand takeDeviceReceiver  
 
 
 @label :fastboot // TODO support device serial completion.
