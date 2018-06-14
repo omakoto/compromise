@@ -118,6 +118,6 @@ func TakeAny(help string) compromise.CandidateList {
 	return compromise.OpenCandidates(AnyWithHelp(help))
 }
 
-func TakeInteger(ctx compromise.CompleteContext) compromise.CandidateList {
-	return compromise.OpenCandidates()
+func TakeInteger() compromise.CandidateList {
+	return compromise.NewCandidateBuilder().Force(true).Help("INTEGER").Build()
 }

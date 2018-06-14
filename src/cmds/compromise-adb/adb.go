@@ -371,6 +371,12 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 @command akillall :killall
 @command logcat :logcat
 
+@command m :m
+@command mm :mm
+@command mmm :mmm
+@command mma :mm
+@command mmma :mmm
+
 @switchloop "^-"
 	-a # listen on all network interfaces, not just localhost
 
@@ -1106,6 +1112,34 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		@cand takeFile	// TODO Support #method1,method2,...
 					
 		@cand takeBuildModule "(Test|^Bug)"
+
+
+
+@label :m
+	@call :makeFlags
+	@loop
+		@cand takeBuildModule
+		
+@label :m
+	@call :makeFlags
+	@loop
+		@cand takeBuildModule
+
+@label :mm
+	@call :makeFlags
+
+@label :mmm
+	@call :makeFlags
+	@loop
+		@cand takeDir
+
+
+@label :makeflags
+	@switchloop "^-"
+		-j|--jobs					# Specifies the number of jobs (commands) to run simultaneously.
+			@switch "^[0-9]"
+				@cand takeInteger
+		-i|--ignore-errors 			# Ignore all errors in commands executed to remake files.
 
 
 `

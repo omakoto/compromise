@@ -55,6 +55,10 @@ For the full supported command name list, see [the source code](src/cmds/comprom
 
 ```bash
 . <(compromise-adb adb dumpsys) # Only install competion for the adb and dumpsys commands.  
+
+# or, disable selectively.
+
+. <(compromise-adb - atest) # Install everything except for the atest completion.  
 ```
 
 ## Known Issues

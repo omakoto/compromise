@@ -84,15 +84,34 @@ func runWithSpecCatcher(f func()) {
 	f()
 }
 
+func getTargetCommands(original, override []string) []string {
+	if len(override) == 0 {
+		return original
+	}
+	if override[0] != "-" {
+		return override
+	}
+	// Otherwise remove the ones in override.
+	remove := make(map[string]string)
+	for _, v := range override[1:] {
+		remove[v] = v
+	}
+	ret := make([]string, 0)
+	for _, v := range original {
+		if _, ok := remove[v]; !ok {
+			ret = append(ret, v)
+		}
+	}
+	return ret
+}
+
 func PrintInstallScriptRaw(spec string, listCommandsOnly bool, commandsOverride ...string) {
 	runWithSpecCatcher(func() {
 		// Parse the spec.
 		directives := compromise.ExtractDirectives(spec)
 		root := parser.Parse(spec, directives)
-		commands := root.TargetCommands()
-		if len(commandsOverride) > 0 {
-			commands = commandsOverride
-		}
+
+		commands := getTargetCommands(root.TargetCommands(), commandsOverride)
 
 		if len(commands) == 0 {
 			common.Fatal("spec doesn't contain any @commands; target commands must be passed as arguments")
