@@ -68,6 +68,5 @@ For the full supported command name list, see [the source code](src/cmds/comprom
 ## TODOs
  - Write tests
  - Add menu completion for bash using [FZF](https://github.com/junegunn/fzf).
- - `adb shell <[TAB]` doesn't work on bash, `adb shell < [TAB]` does.
  - Cache candidates and only refresh it when "dependency" files are newer. (speed up modulelist)
- - `adb shell settings put [tab]` shouldn't suggest key names.   
+ - `adb shell settings put [tab]` shouldn't suggest key names. 

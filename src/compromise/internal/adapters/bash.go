@@ -158,6 +158,17 @@ func (a *bashAdapter) Unescape(arg string) string {
 	return shell.Unescape(utils.HomeExpanded(arg))
 }
 
+func isRedirect(s string) bool {
+	if s == "" {
+		return false
+	}
+	switch s[0] {
+	case '<', '>':
+		return true
+	}
+	return false
+}
+
 func (a *bashAdapter) GetCommandLine(args []string) *CommandLine {
 	cword, err := strconv.Atoi(args[0])
 	common.CheckPanic(err, "Atoi failed") // This is an internal error, so use panic.
@@ -194,6 +205,10 @@ func (a *bashAdapter) GetCommandLine(args []string) *CommandLine {
 	}
 	// If the cursor is after the last word, advance the index.
 	if ret.bashCompPoint > lastToken.Index+len(lastToken.Word) {
+		lastIndex++
+	}
+	// If the current word is a direct mark (starts with < or >), then advance by one more.
+	if lastIndex < len(parsedRawWords) && isRedirect(parsedRawWords[lastIndex]) {
 		lastIndex++
 	}
 
