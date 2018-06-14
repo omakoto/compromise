@@ -783,7 +783,30 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 	// TODO Implement other commands...
 
 @label :dumpsys
-	@cand takeService
+	@switch
+		activity	# Activity Manager dumpsys
+			@call :dumpsys-activity
+		package		# Package Manager dumpsys
+			@call :dumpsys-package
+		@cand takeService
+
+
+@label :dumpsys-activity
+	@switch
+		activities
+		broadcasts
+			history
+		intents
+		lastanr
+		permissions
+		processes
+		providers
+		recents
+		services
+		starter
+
+@label :dumpsys-package
+
 
 @label :cmd
 	@cand takeService
