@@ -48,7 +48,7 @@ var (
 	Home = os.Getenv("HOME")
 
 	// Persistent storage filename.
-	DoublePressTimeout = time.Duration(utils.ParseInt(os.Getenv("COMPROMISE_DOUBLE_PRESS_TIMEOUT_MS"), 10, 300)) * time.Millisecond
+	DoublePressTimeout = time.Duration(utils.ParseInt(os.Getenv("COMPROMISE_DOUBLE_PRESS_TIMEOUT_MS"), 10, 500)) * time.Millisecond
 
 	// On bash, show help for at most this many candidates.
 	BashHelpMaxCandidates = utils.ParseInt(os.Getenv("COMPROMISE_BASH_HELP_MAX"), 10, 20)
