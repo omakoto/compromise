@@ -1,0 +1,23 @@
+@switchloop
+    @call :sub1
+    @call :sub2
+    -xyz
+
+xxx
+
+@label :sub1
+    @switch
+        -a
+        -b
+@label :sub2
+    @switch
+        -c
+        -d
+===
+command ''
+===
+-a
+-b
+-c
+-d
+-xyz

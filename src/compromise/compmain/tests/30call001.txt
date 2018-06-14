@@ -1,0 +1,11 @@
+@call :sub1
+@call :sub2
+
+@label :sub1
+    -a
+@label :sub2
+    -b
+===
+command ''
+===
+-a
