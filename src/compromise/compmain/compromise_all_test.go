@@ -3,14 +3,15 @@ package compmain
 import (
 	"bytes"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
 	"github.com/omakoto/go-common/src/shell"
+	"github.com/sergi/go-diff/diffmatchpatch"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
 func TestFull(t *testing.T) {
@@ -31,6 +32,7 @@ func TestFull(t *testing.T) {
 			t.Fatalf("can't open test file %s: %s", file, err)
 			return
 		}
+		compdebug.Debugf("\n*** TEST %s ***\n", file)
 
 		data := string(bindata)
 		splits := strings.SplitN(data, "===\n", 3)
@@ -57,7 +59,7 @@ func compare(t *testing.T, test, a, b string) {
 	}
 	dmp := diffmatchpatch.New()
 
-	diffs := dmp.DiffMain(a, b, false)
+	diffs := dmp.DiffMain(b, a, false)
 
 	t.Errorf("* Test %q failed:\n%s\n", test, diffPrettyText(diffs))
 }
@@ -69,11 +71,13 @@ func diffPrettyText(diffs []diffmatchpatch.Diff) string {
 
 		switch diff.Type {
 		case diffmatchpatch.DiffInsert:
-			buff.WriteString("+ ")
+			buff.WriteString("[(+)")
 			buff.WriteString(text)
+			buff.WriteString("]")
 		case diffmatchpatch.DiffDelete:
-			buff.WriteString("- ")
+			buff.WriteString("[(-)")
 			buff.WriteString(text)
+			buff.WriteString("]")
 		case diffmatchpatch.DiffEqual:
 			buff.WriteString(text)
 		}
@@ -81,7 +85,6 @@ func diffPrettyText(diffs []diffmatchpatch.Diff) string {
 
 	return buff.String()
 }
-
 
 func takeLazily() compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {

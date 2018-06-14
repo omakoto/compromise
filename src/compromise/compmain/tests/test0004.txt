@@ -1,0 +1,11 @@
+@switch
+  -a
+  -b
+xxx
+yyy
+===
+command ''
+===
+-a
+-b
+xxx

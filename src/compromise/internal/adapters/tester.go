@@ -2,11 +2,11 @@ package adapters
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/go-common/src/shell"
 	"io"
 	"sort"
-	"fmt"
 )
 
 type testerAdapter struct {
@@ -42,9 +42,7 @@ func (a *testerAdapter) Unescape(arg string) string {
 }
 
 func (a *testerAdapter) GetCommandLine(args []string) *CommandLine {
-	// Ignore the index
-
-	return newCommandLine(a.Unescape, len(args), args)
+	return newCommandLine(a.Unescape, len(args)-1, args)
 }
 
 func (a *testerAdapter) StartCompletion(commandLine *CommandLine) {
