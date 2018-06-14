@@ -12,7 +12,7 @@ Currently it comes with the following two completions:
 
 ## Features
 
- - Define completion in [an "obvious" language](src/cmds/compromise-go/go.go) that supports both Bash and Zsh.
+ - Define completion in [an obvious-ish language](src/cmds/compromise-go/go.go) that supports both Bash and Zsh.
  - Generate dynamic candidates with [custom Go functions](src/cmds/compromise-adb/adb.go).
  - Show candidate description not only on Zsh but on Bash too.
    - On Bash, completion candidates look like this (type `adb[SPACE][TAB]`):
