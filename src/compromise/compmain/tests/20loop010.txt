@@ -1,0 +1,10 @@
+@loop
+    aaa
+    bbb
+        @break
+    ccc
+xxx
+===
+command ''
+===
+aaa

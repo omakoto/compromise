@@ -1,6 +1,6 @@
-@switch
+@switchloop
   -a
-  -b
+  -b|-c
 xxx
 yyy
 ===
@@ -8,4 +8,4 @@ command ''
 ===
 -a
 -b
-xxx
+-c

@@ -32,7 +32,8 @@ func catchLoopControl(myLabel string) func(fc *flowControl) bool {
 	return func(fc *flowControl) bool {
 		switch fc.nodeType {
 		case compast.NodeBreak, compast.NodeContinue:
-			return myLabel == "" || fc.sourceNode.Label().Word == myLabel
+			toLabel := fc.sourceNode.LabelWord()
+			return toLabel == myLabel || toLabel == ""
 		}
 		return false
 	}

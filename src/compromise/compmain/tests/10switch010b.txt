@@ -1,0 +1,11 @@
+@switchloop
+  -a
+  -b|-c
+xxx
+yyy
+===
+command '' '-'
+===
+-a
+-b
+-c

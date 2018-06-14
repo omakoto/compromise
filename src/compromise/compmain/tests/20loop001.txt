@@ -1,0 +1,8 @@
+@loop
+    aaa
+    bbb
+    ccc
+===
+command ''
+===
+aaa

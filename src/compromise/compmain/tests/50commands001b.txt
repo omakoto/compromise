@@ -1,0 +1,16 @@
+@command aaa
+@command bbb :bbb
+@command ccc :ccc
+@command ddd
+
+-aaa
+
+@label :bbb
+   -bbb
+
+@label :ccc
+   -ccc
+===
+ccc ''
+===
+-ccc

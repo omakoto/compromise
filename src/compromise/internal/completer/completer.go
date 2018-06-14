@@ -114,7 +114,7 @@ func debugId() int {
 	return int(atomic.AddInt32(&lastDebugId, 1))
 }
 
-func (e *Engine) executeNode(n *compast.Node, doSwitch bool, matched *bool) {
+func (e *Engine) executeNode(n *compast.Node, inSwitch bool, matched *bool) {
 	if n == nil {
 		return
 	}
@@ -126,7 +126,7 @@ func (e *Engine) executeNode(n *compast.Node, doSwitch bool, matched *bool) {
 
 	cl := e.commandLine
 	for ; !cl.AfterCursor() && n != nil; n = n.Next() {
-		compdebug.Debugf("[#%d] At %q (%d/%d) : executing %s (switch=%v)\n", id, cl.RawWordAt(0), cl.Pc(), cl.CursorIndex(), n, doSwitch)
+		compdebug.Debugf("[#%d] At %q (%d/%d) : executing %s (in-switch=%v)\n", id, cl.RawWordAt(0), cl.Pc(), cl.CursorIndex(), n, inSwitch)
 
 		n.UpdateLastVisitedWordIndex(e.commandLine.Pc())
 
@@ -147,21 +147,21 @@ func (e *Engine) executeNode(n *compast.Node, doSwitch bool, matched *bool) {
 				panic(newFlowControl(n))
 
 			case compast.NodeSwitch:
-				e.executeSwitchLoop(n, true, false, &m)
+				e.executeSwitchLoop(n, inSwitch, true, false, &m)
 			case compast.NodeSwitchLoop:
-				e.executeSwitchLoop(n, true, true, &m)
+				e.executeSwitchLoop(n, inSwitch, true, true, &m)
 			case compast.NodeLoop:
-				e.executeSwitchLoop(n, false, true, &m)
+				e.executeSwitchLoop(n, inSwitch, false, true, &m)
 
 			case compast.NodeAny:
-				e.executeAny(n, doSwitch, &m)
+				e.executeAny(n, inSwitch, &m)
 			case compast.NodeCandidate:
-				e.executeCandidate(n, doSwitch, &m)
+				e.executeCandidate(n, inSwitch, &m)
 			case compast.NodeLiteral:
-				e.executeLiteral(n, doSwitch, &m)
+				e.executeLiteral(n, inSwitch, &m)
 
 			case compast.NodeCall:
-				e.executeCall(n, doSwitch, &m)
+				e.executeCall(n, inSwitch, &m)
 			case compast.NodeGoCall:
 				e.executeGoCall(n, &m)
 			default:
@@ -174,7 +174,7 @@ func (e *Engine) executeNode(n *compast.Node, doSwitch bool, matched *bool) {
 			}
 		})
 
-		if doSwitch {
+		if inSwitch {
 			if collecting {
 				compdebug.Debug("[next: in switch and collecting]\n")
 				continue
@@ -194,50 +194,50 @@ func (e *Engine) executeNode(n *compast.Node, doSwitch bool, matched *bool) {
 	}
 }
 
-func (e *Engine) executeCall(n *compast.Node, doSwitch bool, matched *bool) {
+func (e *Engine) executeCall(n *compast.Node, inSwitch bool, matched *bool) {
 	// @call: Jump to the target label, and then execute from it's next, until "return" is detected.
 
 	label := n.LabelWord()
 	target := e.astRoot.GetLabeledNode(label, n.Label()).Child()
 
 	doWithFlowControl(catchReturn(), func() {
-		e.executeNode(target, doSwitch, matched)
+		e.executeNode(target, inSwitch, matched)
 	})
 }
 
-func (e *Engine) executeAny(n *compast.Node, doSwitch bool, matched *bool) {
+func (e *Engine) executeAny(n *compast.Node, inSwitch bool, matched *bool) {
 	// @any: Any matches any word but generates no candidates.
-	//e.executeCandidateNode(n, doSwitch, compfunc.TakeAny, matched)
-	e.executeCandidateNode(n, doSwitch, func() compromise.CandidateList {
+	//e.executeCandidateNode(n, inSwitch, compfunc.TakeAny, matched)
+	e.executeCandidateNode(n, inSwitch, func() compromise.CandidateList {
 		return compromise.OpenCandidates(n.AsCandidates()...)
 	}, matched)
 }
 
-func (e *Engine) executeCandidate(n *compast.Node, doSwitch bool, matched *bool) {
+func (e *Engine) executeCandidate(n *compast.Node, inSwitch bool, matched *bool) {
 	// @cand: lazily generate candidates if necessary. It matches any word.
 	funcName := n.FuncName().Word
 
-	e.executeCandidateNode(n, doSwitch, func() compromise.CandidateList {
+	e.executeCandidateNode(n, inSwitch, func() compromise.CandidateList {
 		return compfunc.Invoke(funcName, e.commandLine, n.Args())
 	}, matched)
 }
 
-func (e *Engine) executeLiteral(n *compast.Node, doSwitch bool, matched *bool) {
+func (e *Engine) executeLiteral(n *compast.Node, inSwitch bool, matched *bool) {
 	// Literal (such as -f, etc): Emits itself as a candidate. Only the exact same word will match.
-	e.executeCandidateNode(n, doSwitch, func() compromise.CandidateList {
+	e.executeCandidateNode(n, inSwitch, func() compromise.CandidateList {
 		return compromise.StrictCandidates(n.AsCandidates()...)
 	}, matched)
 }
 
-func (e *Engine) executeCandidateNode(n *compast.Node, doSwitch bool, genCands func() compromise.CandidateList, matched *bool) {
+func (e *Engine) executeCandidateNode(n *compast.Node, inSwitch bool, genCands func() compromise.CandidateList, matched *bool) {
 	common.OrPanicf(!e.commandLine.AfterCursor(), "must not be after cursor")
 
 	curWord := e.commandLine.WordAt(0)
 
 	if e.collecting() {
 		e.addCandidates(genCands().GetCandidate(curWord)...)
-		if !doSwitch {
-			e.advancePc("candidate collected")
+		if !inSwitch {
+			panicFinish("cursor word consumed")
 		}
 		*matched = true
 		return
@@ -246,10 +246,10 @@ func (e *Engine) executeCandidateNode(n *compast.Node, doSwitch bool, genCands f
 	// Otherwise, if it has children, we need to go deeper.
 	if genCands().MatchesFully(curWord) {
 		e.advancePc("literal matched")
-		m := false
 
 		// Note we don't need to propagate matched here. As long as this node matches,
 		// we still report "match" to the caller.
+		m := false
 		*matched = true
 		e.executeNode(n.Child(), false, &m)
 		return
@@ -267,14 +267,14 @@ func (e *Engine) executeGoCall(n *compast.Node, matched *bool) {
 	}
 }
 
-func (e *Engine) executeSwitchLoop(n *compast.Node, doSwitch bool, doLoop bool, matched *bool) {
+func (e *Engine) executeSwitchLoop(n *compast.Node, inSwitch, doSwitch bool, doLoop bool, matched *bool) {
 	myLabel := n.LabelWord()
 
 	id := debugId()
 
 	compdebug.Indent()
 	defer compdebug.Unindent()
-	compdebug.Debugf("[#%d] executeSwitchLoop s=%v, l=%v node=%s\n", id, doSwitch, doLoop, n)
+	compdebug.Debugf("[#%d] executeSwitchLoop s=%v, l=%v node=%s (in-switch=%v)\n", id, doSwitch, doLoop, n, inSwitch)
 	defer compdebug.Debugf("[#%d] executeSwitchLoop done\n", id)
 
 	if n.Child() == nil {
@@ -306,23 +306,17 @@ func (e *Engine) executeSwitchLoop(n *compast.Node, doSwitch bool, doLoop bool, 
 		})
 
 		if collecting {
-			if m && doSwitch && doLoop && n.PatternMatches(e.commandLine.WordAt(0)) {
-				panicFinish("word consumed by switch")
+			if !inSwitch && n.PatternMatches(e.commandLine.WordAt(0)) {
+				panicFinish("cursor word consumed")
 			}
 			compdebug.Debugf("[#%d] still collecting, continuing to the caller...\n", id)
-			break
-		}
-
-		if !m {
-			// TODO This is questionable...
-			compdebug.Debugf("[#%d] didn't match in executeSwitchLoop, ignoring...\n", id)
 			break
 		}
 		if !doLoop {
 			break // Not looping.
 		}
 		if fc != nil && fc.nodeType == compast.NodeBreak {
-			compdebug.Debugf("[#%d] break detected")
+			compdebug.Debugf("[#%d] break detected\n", id)
 			break
 		}
 

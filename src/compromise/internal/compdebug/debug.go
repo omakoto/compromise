@@ -17,7 +17,7 @@ import (
 
 var (
 	lock = &sync.Mutex{}
-	Out  io.Writer
+	Out  io.WriteCloser
 
 	indent               = 0
 	cachedIndent *string = nil
@@ -80,6 +80,17 @@ func Time(what string, f func()) {
 	}
 
 	f()
+}
+
+func CloseLog() {
+	lock.Lock()
+	defer lock.Unlock()
+
+	if Out == nil {
+		return
+	}
+	Out.Close()
+	Out = nil
 }
 
 func write(s string) {

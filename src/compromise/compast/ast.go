@@ -203,6 +203,10 @@ func (n *Node) Root() *Node {
 	return n.root
 }
 
+func (n *Node) IsRoot() bool {
+	return n == n.root
+}
+
 func (n *Node) Parent() *Node {
 	return n.parent
 }

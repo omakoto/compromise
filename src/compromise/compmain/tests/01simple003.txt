@@ -1,0 +1,6 @@
+a
+b       # help
+===
+command a ''
+===
+b #"help"

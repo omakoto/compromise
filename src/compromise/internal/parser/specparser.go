@@ -3,6 +3,7 @@ package parser
 import (
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compast"
+	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/internal/parser/tokenizer"
 	"github.com/omakoto/go-common/src/common"
 )
@@ -207,20 +208,46 @@ func (p *parser) parse() *compast.Node {
 		nodeStack[depth-1].AddChild(n)
 		nodeStack[depth] = n
 	}
-	p.ensureLabelsExist(root)
+	p.sanityCheck(root)
 	return root
 }
 
-func (p *parser) ensureLabelsExist(n *compast.Node) {
+func (p *parser) sanityCheck(n *compast.Node) {
 	if n == nil {
 		return
 	}
-	if n.Label() != nil {
-		if n.Root().GetLabeledNode(n.LabelWord(), n.SelfToken()) == nil {
-			panic(compromise.NewSpecErrorf(n.SelfToken(), "label %s doesn't exist", n.LabelWord()))
+	switch n.NodeType() {
+	case compast.NodeCall, compast.NodeCommand:
+		if n.Label() != nil {
+			if n.Root().GetLabeledNode(n.LabelWord(), n.SelfToken()) == nil {
+				panic(compromise.NewSpecErrorf(n.SelfToken(), "label %s doesn't exist", n.LabelWord()))
+			}
+		}
+	case compast.NodeBreak, compast.NodeContinue:
+		if n.Label() != nil {
+			// Ensure any of parent nodes has the label.
+			if !findParentForLabel(n.LabelWord(), n) {
+				panic(compromise.NewSpecErrorf(n.SelfToken(), "label %s doesn't exist", n.LabelWord()))
+			}
+		}
+
+	case compast.NodeGoCall, compast.NodeCandidate:
+		if compfunc.Defined(n.Literal().Word) != nil {
+			panic(compromise.NewSpecErrorf(n.SelfToken(), "function %s isn't registered", n.Literal()))
 		}
 	}
 	for c := n.Child(); c != nil; c = c.Next() {
-		p.ensureLabelsExist(c)
+		p.sanityCheck(c)
 	}
+}
+
+func findParentForLabel(label string, n *compast.Node) bool {
+	p := n.Parent()
+	if p.IsRoot() {
+		return false
+	}
+	if p.LabelWord() == label {
+		return true
+	}
+	return findParentForLabel(label, p)
 }

@@ -1,10 +1,11 @@
 @switch
   -a
-  -b
+  -b|-c
 xxx
 yyy
 ===
-command -
+command ''
 ===
 -a
 -b
+-c

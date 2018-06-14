@@ -1,0 +1,15 @@
+@loop :loop
+    @switch "^-"
+        -b
+            @break      :loop
+        -c
+            @continue   :loop
+    f1
+    f2
+xxx
+===
+command -c ''
+===
+-b
+-c
+f1

@@ -75,7 +75,7 @@ func (a *testerAdapter) EndCompletion() {
 			a.out.WriteString("+")
 		}
 		if v.Help() != "" {
-			a.out.WriteString("\t")
+			a.out.WriteString(" #")
 			a.out.WriteString(fmt.Sprintf("%q", v.Help()))
 		}
 		a.out.WriteString("\n")

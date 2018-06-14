@@ -29,6 +29,16 @@ func (d *Directives) SetSourceLocation() *Directives {
 	return d
 }
 
+func (d *Directives) SetFilename(filename string) *Directives {
+	d.Filename = filename
+	return d
+}
+
+func (d *Directives) SetStartLine(lineNumber int) *Directives {
+	d.StartLine = lineNumber
+	return d
+}
+
 func (d *Directives) Tab(tabWidth int) *Directives {
 	d.TabWidth = tabWidth
 	return d
