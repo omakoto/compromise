@@ -232,7 +232,7 @@ func (p *parser) sanityCheck(n *compast.Node) {
 		}
 
 	case compast.NodeGoCall, compast.NodeCandidate:
-		if compfunc.Defined(n.Literal().Word) != nil {
+		if compfunc.Defined(n.FuncName().Word) != nil {
 			panic(compromise.NewSpecErrorf(n.SelfToken(), "function %s isn't registered", n.Literal()))
 		}
 	}

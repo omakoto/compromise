@@ -627,13 +627,8 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				@call :take_user_id
 			
 			@call :intent_body_receiver
-
-
-		instrument // TODO
-		trace-ipc  // TODO
-		profile    // TODO
 			
-		dumpheap
+		dumpheap		# Dump the heap of a process.
 			@switchloop "^-"
 				-n		# dump native heap instead of managed heap
 				-g		# force GC before dumping the heap
@@ -644,12 +639,146 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 			@cand takeFile
 
-	// TODO Implement other commands...
+		instrument 	#  Start an Instrumentation.
+			@switchloop "^-"
+	      		-r		# print raw results (otherwise decode REPORT_KEY_STREAMRESULT).  Use with \
+						#[-e perf true] to generate raw output for performance measurements.
+	      		-e 		# <NAME> <VALUE>: set argument <NAME> to <VALUE>.  For test runners a \
+	          			# common form is [-e <testrunner_flag> <value>[,<value>...]].
+					@any #NAME
+					@any #VALUE
+	      		-p		# <FILE>: write profiling data to <FILE>
+					@cand takeFile
+	      		-m		# Write output as protobuf (machine readable)
+	      		-w		# wait for instrumentation to finish before returning.  Required for test runners.
+				@call :take_user_id
+				--no-window-animation  # turn off window animations while running.
+	      		--abi 	# <ABI>: Launch the instrumented process with the selected ABI.
+			
+			@cand takeDeviceInstrumentation
+
+		trace-ipc	#Trace IPC transactions.
+			@switch
+				start
+				stop
+			@switchloop "^-"
+				--dump-file
+					@cand takeFile
+	
+		profile	# Start and stop profiler on a process.
+			@switch
+				start
+				stop
+			@switchloop "^-"
+				@call :take_user_id
+				--sampling # INTERVAL: use sample profiling with INTERVAL microseconds \
+          				#between samples
+					@any #INTERVAL
+      			--streaming # stream the profiling output to the specified file
+
+			@cand takeProcessName
+			@cand takeFile
+
+		force-stop # Completely stop the given application package.
+			@call :take_user_id
+			@cand takeDevicePackage
+
+		kill # Kill all processes associated with the given application.
+			@call :take_user_id
+			@cand takeDevicePackage
+
+		make-uid-idle 	# If the given application's uid is in the background and waiting to \
+      					# become idle (not allowing background services), do that now.
+			@call :take_user_id
+			@cand takeDevicePackage
+
+		kill-all # Kill all processes that are safe to kill (cached, etc).
+
+		crash 		# Induce a VM crash in the specified package or process
+			@call :take_user_id
+			@switch
+				@cand takeDevicePackage
+				@cand takePid
+
+		watch-uids		# Start watching for and reporting uid state changes.
+			@switchloop "^-"
+      			--oom		# specify a uid for which to report detailed change messages.
+			@any #UID // TODO 
+
+		get-uid-state 		# Gets the process state of an app given its <UID>.
+			@any #UID // TODO 
+
+		hang 		# Hang the system.
+      		--allow-restart	# allow watchdog to perform normal system restart
+
+  		restart		# Restart the user-space system.
+
+		idle-maintenance # Perform idle maintenance now.
+
+		package-importance 	# Print current importance of <PACKAGE>.
+				@cand takeDevicePackage
+
+		switch-user|start-user|unlock-user 	# Switch/start/unlock a user
+			@cand takeUserId
+
+		stop-user 	# Stop a user
+			@switchloop "^-"
+				-w	# wait for stop-user to complete.
+				-f	# force stop even if there are related users that cannot be stopped.
+			@cand takeUserId
+
+		write	# Write all pending state to storage.
 		
 @label :pm
 	@switch
 		dump	# dump package
 			@cand takeDevicePackage
+
+		clear|enable|disable|disable-user|disable-until-used|default-state|suspend|unsuspend|set-home-activity # Change package state
+			@call :take_user_id
+			@cand takeDevicePackageComponent
+
+		dump-profiles # Dumps method/class profile files to /data/misc/profman/TARGET-PACKAGE.txt
+			@cand takeDevicePackage
+
+		reconcile-secondary-dex-files	# Reconciles the package secondary dex files with the generated oat files.
+			@cand takeDevicePackage
+
+		list				# List information
+			@switch
+				features		# Prints all features of the system.
+				instrumentation # Prints all test packages; optionally only those targeting TARGET-PACKAGE
+					@switchloop "^-"
+	      				-f		# dump the name of the .apk file containing the test package
+					@cand takeDevicePackage
+	
+				libraries			# Prints all system libraries.
+				permission-groups	# Prints all known permission groups.
+	
+	  			packages		#Prints all packages; optionally only those whose name contains
+					@switchloop "^-"
+						-f		# see their associated file
+						-d		# filter to only show disabled packages
+						-e		# filter to only show enabled packages
+						-s		# filter to only show system packages
+						-3		# filter to only show third party packages
+						-i		# see the installer for the packages
+						-l		# ignored (used for compatibility with older releases)
+						-U		# also show the package UID
+						-u		# also include uninstalled packages
+						--uid   # UID: filter to only show packages with the given UID
+							@any # UID #TODO
+						@call :take_user_id
+					@cand takeDevicePackage
+	
+				permissions 	# Prints all known permissions; optionally only those in GROUP.
+					@switchloop "^-"
+						-g # organize by group
+						-f # print all information
+						-s # short summary
+						-d # only list dangerous permissions
+						-u # list only the permissions users will see
+					@any # Permission group // TODO
 
 	// TODO Implement other commands...
 
@@ -699,11 +828,13 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 // settings " --user [ X | current ] "
 @label :take_user_id	
 	@switch "^-"
-		--user
+		--user # Specify user-id.
 			@switch
 				@cand takeUserId
 					@go_call setUserId
 				current
+					@go_call setUserId 
+				all
 					@go_call setUserId 
 
 // settings global put " [ global | system | secure ] "
