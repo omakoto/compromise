@@ -2,17 +2,18 @@ package main
 
 import (
 	"bytes"
+	"os"
+	"path"
+	"regexp"
+	"sort"
+	"strings"
+
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/compmain"
 	"github.com/omakoto/go-common/src/fileutils"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/ungerik/go-dry"
-	"os"
-	"path"
-	"regexp"
-	"sort"
-	"strings"
 )
 
 var (
@@ -379,6 +380,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 @command runahat    :runahat
 @command stacktrace :stacktrace
+@command stacks     :stacktrace
 
 @switchloop "^-"
 	-a # listen on all network interfaces, not just localhost
@@ -426,7 +428,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				@finish
 			--no-rebind	# forward socket connection
 
-		@any	# LOCAL: tcp:<port>, localabstract:<domainsocket>, localfilesystem:<domainsocket>,dev:<cdev> 
+		@any	# LOCAL: tcp:<port>, localabstract:<domainsocket>, localfilesystem:<domainsocket>,dev:<cdev>
 		@any	# REMOTE: tcp:<port>, localabstract:<domainsocket>, localfilesystem:<domainsocket>,dev:<cdev>,jdwp:<pid>
 
 	ppp			# run PPP over USB
@@ -445,7 +447,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				@finish
 
 		@any	# REMOTE: tcp:<port>, localabstract:<domainsocket>, localfilesystem:<domainsocket>,dev:<cdev>,jdwp:<pid>
-		@any	# LOCAL: tcp:<port>, localabstract:<domainsocket>, localfilesystem:<domainsocket>,dev:<cdev> 
+		@any	# LOCAL: tcp:<port>, localabstract:<domainsocket>, localfilesystem:<domainsocket>,dev:<cdev>
 
 // file transfer:
 	push		# copy local files/directories to device
@@ -556,7 +558,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		@switch
 			dumpsys	# Dump system service
 				@call :dumpsys
-	
+
 			cmd		# Execute a aystem server command
 				@call :cmd
 			am		# Activity manager command
@@ -614,29 +616,29 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				--stack # Specify into which stack should the activity be put.
 					@any  #STACK_ID
 				@call :take_user_id
-			
+
 			@call :intent_body_activity
 
 		start-service|start-foreground-service|stop-service		# Start/stop a service.
 			@switchloop "^-"
 				@call :intent_flags
 				@call :take_user_id
-			
+
 			@call :intent_body_service
 
 		broadcast		# Send a broadcast.
 			@switchloop "^-"
 				@call :intent_flags
 				@call :take_user_id
-			
+
 			@call :intent_body_receiver
-			
+
 		dumpheap		# Dump the heap of a process.
 			@switchloop "^-"
 				-n		# dump native heap instead of managed heap
 				-g		# force GC before dumping the heap
 				@call :take_user_id
-		
+
 			@switch
 				@cand takeProcessName
 
@@ -657,7 +659,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				@call :take_user_id
 				--no-window-animation  # turn off window animations while running.
 	      		--abi 	# <ABI>: Launch the instrumented process with the selected ABI.
-			
+
 			@cand takeDeviceInstrumentation
 
 		trace-ipc	#Trace IPC transactions.
@@ -667,7 +669,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@switchloop "^-"
 				--dump-file
 					@cand takeFile
-	
+
 		profile	# Start and stop profiler on a process.
 			@switch
 				start
@@ -706,10 +708,10 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		watch-uids		# Start watching for and reporting uid state changes.
 			@switchloop "^-"
       			--oom		# specify a uid for which to report detailed change messages.
-			@any #UID // TODO 
+			@any #UID // TODO
 
 		get-uid-state 		# Gets the process state of an app given its <UID>.
-			@any #UID // TODO 
+			@any #UID // TODO
 
 		hang 		# Hang the system.
       		--allow-restart	# allow watchdog to perform normal system restart
@@ -731,7 +733,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@cand takeUserId
 
 		write	# Write all pending state to storage.
-		
+
 		get-standby-bucket		# Returns the standby bucket of an app.
 			@call :take_user_id
 			@cand takeDevicePackage
@@ -770,10 +772,10 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 					@switchloop "^-"
 	      				-f		# dump the name of the .apk file containing the test package
 					@cand takeDevicePackage
-	
+
 				libraries			# Prints all system libraries.
 				permission-groups	# Prints all known permission groups.
-	
+
 	  			packages		#Prints all packages; optionally only those whose name contains
 					@switchloop "^-"
 						-f		# see their associated file
@@ -789,7 +791,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 							@any # UID #TODO
 						@call :take_user_id
 					@cand takeDevicePackage
-	
+
 				permissions 	# Prints all known permissions; optionally only those in GROUP.
 					@switchloop "^-"
 						-g # organize by group
@@ -835,24 +837,24 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		//	 get [--user <USER_ID> | current] NAMESPACE KEY
 		get			# Retrieve the current value of KEY
 			@call :take_user_id
-			@call :settings_namespace	
+			@call :settings_namespace
 			@cand takeSettingKey
-		
+
 		//	 put [--user <USER_ID> | current] NAMESPACE KEY VALUE [TAG] [default]
 		put			# Change the contents of KEY to VALUE
 			@call :take_user_id
 			@call :settings_namespace
 			@cand takeSettingKey
 			@any	# <value> value to set
-			@any	# <tag> 
+			@any	# <tag>
 			@switch
 				default # {default} to set as the default, case-insensitive only for global/secure namespace
-	
+
 		//	 delete NAMESPACE KEY
 		delete		# Delete the entry for KEY
 			@call :settings_namespace
 			@cand takeSettingKey
-		
+
 		//	 reset [--user <USER_ID> | current] NAMESPACE {PACKAGE_NAME | RESET_MODE}
 		reset		# Reset the global/secure table for a package with mode
 			@call :take_user_id
@@ -862,32 +864,32 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				untrusted_defaults
 				untrusted_clear
 				trusted_defaults
-	
+
 		//	 list NAMESPACE
 		list	# Print all defined keys
 			@call :settings_namespace
-		
+
 // settings " --user [ X | current ] "
-@label :take_user_id	
+@label :take_user_id
 	@switch "^-"
 		--user # Specify user-id.
 			@switch
 				@cand takeUserId
 					@go_call setUserId
 				current
-					@go_call setUserId 
+					@go_call setUserId
 				all
-					@go_call setUserId 
+					@go_call setUserId
 
 // settings global put " [ global | system | secure ] "
 @label :settings_namespace
 	@switch
 		global
-			@go_call setSettingsNamespace 
+			@go_call setSettingsNamespace
 		system
-			@go_call setSettingsNamespace 
+			@go_call setSettingsNamespace
 		secure
-			@go_call setSettingsNamespace 
+			@go_call setSettingsNamespace
 
 @label :requestsync
 
@@ -978,9 +980,9 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				@any			# <count> Quit after printing <count> lines
 			--print				# Paired with --regex and --max-count to let content bypass regex filter but still stop at number of matches.
 			-t					# Print only the most recent lines (implies -d)
-				@any			# <count> or '<time>' 
+				@any			# <count> or '<time>'
 			-T					# Print only the most recent lines (does not implies -d)
-				@any			# <count> or '<time>' 
+				@any			# <count> or '<time>'
 			-g|--buffer-size	# Get the size of the ring buffer
 			-G|--buffer-size	# Set size of log ring buffer, may suffix with K or M.
 				@any			# <size> Set size of log ring buffer, may suffix with K or M.
@@ -1009,7 +1011,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 @label :intent
 	@switchloop "^-"
 		@call :intent_flags
-	@cand takeDevicePackageComponent  
+	@cand takeDevicePackageComponent
 
 @label :intent_flags
 		-a #<ACTION>
@@ -1043,7 +1045,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		--ecn #<EXTRA_KEY> <EXTRA_COMPONENT_NAME_VALUE>
 			@any #EXTRA_KEY
 			@cand takeDevicePackage // TODO Change to ComponentName
-	
+
 		--eia #<EXTRA_KEY> <EXTRA_INT_VALUE>[,<EXTRA_INT_VALUE...] \
 			#(mutiple extras passed as Integer[])
 			@any #EXTRA_KEY
@@ -1080,7 +1082,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@any #EXTRA_STRING_VALUE,EXTRA_STRING_VALUE,...
 
 		-f # <FLAG>
-			@any # Intent flags (0xHEX, 0OCT or decimal) 
+			@any # Intent flags (0xHEX, 0OCT or decimal)
 		--grant-read-uri-permission
 		--grant-write-uri-permission
 		--grant-persistable-uri-permission
@@ -1111,13 +1113,13 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		--selector
 
 @label :intent_body_activity
-	@cand takeDeviceActivity  
+	@cand takeDeviceActivity
 
 @label :intent_body_service
-	@cand takeDeviceService  
+	@cand takeDeviceService
 
 @label :intent_body_receiver
-	@cand takeDeviceReceiver  
+	@cand takeDeviceReceiver
 
 
 @label :fastboot // TODO support device serial completion.
@@ -1134,7 +1136,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@any								# <serial>
 		-c										# Override kernel commandline.
 			@any								# <commandline>
-			
+
 		-i										# Specify a custom USB vendor id.
 			@any								# <vendor id>
 		-b|--base								# Specify a custom kernel base \
@@ -1154,14 +1156,14 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@any								# <page size>
 		-S										# Automatically sparse files greater \
 												# than 'size'. 0 to disable.
-			@any								# <size>[K|M|G]	 
+			@any								# <size>[K|M|G]
 		--slot									# Specify slot name to be used if the \
 												# device supports slots. All operations \
 												# on partitions that support slots will \
 												# be done on the slot specified.
-			@any								# <slot>  
+			@any								# <slot>
 		-a|--set-active							# Sets the active slot.
-			@any								# <slot>  
+			@any								# <slot>
 		--skip-secondary						# Will not flash secondary slots when \
 												# performing a flashall or update. This \
 												# will preserve data on other slots.
@@ -1215,25 +1217,25 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				 lock_bootloader				# Locks the bootloader to prevent \
 												# bootloader version rollback.
 		erase									# Erase a flash partition.
-			@any								# <partition>  
+			@any								# <partition>
 		format									# Format a flash partition. Can \
 												# override the fs type and/or size \
-												# the bootloader reports. 
-			@any								# <partition>  
+												# the bootloader reports.
+			@any								# <partition>
 		getvar									# Display a bootloader variable.
-			@any								# <variable>  
+			@any								# <variable>
 		set_active								# Sets the active slot. If slots are \
 												# not supported, this does nothing.
-			@any								# <slot>  
+			@any								# <slot>
 		boot									# Download and boot kernel.
-			@any								# <kernel>	
-			@any								# <ramdisk>	 
-			@any								# <second>	
+			@any								# <kernel>
+			@any								# <ramdisk>
+			@any								# <second>
 		"flash:raw"								# Create bootimage and flash it.
-			@any								# <bootable-partition>	
-			@any								# <kernel>	
-			@any								# <ramdisk>	 
-			@any								# <second>	
+			@any								# <bootable-partition>
+			@any								# <kernel>
+			@any								# <ramdisk>
+			@any								# <second>
 		devices									# List all connected devices.
 			-l									# List all connected devices with device paths.
 		continue								# Continue with autoboot.
@@ -1248,11 +1250,11 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		stage									# Sends contents of <infile> to stage for \
 												# the next command. Supported only on \
 												# Android Things devices.
-			@cand takeFile	  
+			@cand takeFile
 		get_staged								# Receives data to <outfile> staged by the \
 												# last command. Supported only on Android  \
 												# Things devices.
-			@cand takeFile	  
+			@cand takeFile
 		help									# Show this help message.
 
 
@@ -1271,10 +1273,10 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		-v|--verbose				# Display DEBUG level logging.
 		--generate-baseline			# Generate baseline metrics, run 5 iterations by default. Provide an int argument to specify # iterations.
 			@any # Number of iterations.
-		
-		--generate-new-metrics		# Generate new metrics, run 5 iterations by default. Provide an int argument to specify # iterations. 
+
+		--generate-new-metrics		# Generate new metrics, run 5 iterations by default. Provide an int argument to specify # iterations.
 			@any # Number of iterations.
-						
+
 		--detect-regression			# Run regression detection algorithm. Supply path to baseline and/or new metrics folders.
 			@loop
 				@cand takeFile
@@ -1283,20 +1285,19 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 	@switchloop
 		@cand takeFile	// TODO Support #method1,method2,...
-					
+
 		@cand takeBuildModule "(Test|^Bug)"
 
 
 
 @label :m
 	@call :makeFlags
-	@loop
-		@cand takeBuildModule
-		
-@label :m
-	@call :makeFlags
-	@loop
-		@cand takeBuildModule
+	@switchloop
+        @cand takeBuildModule
+        @cand takeFile
+		installclean
+		showcommands
+		snod|vnod
 
 @label :mm
 	@call :makeFlags
