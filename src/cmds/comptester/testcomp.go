@@ -14,7 +14,7 @@ func init() {
 func main() {
 	compmain.HandleCompletionRaw(func() string {
 		return os.Args[1]
-	} , os.Args[2:], os.Stdin, os.Stdout)
+	}, os.Args[2:], os.Stdin, os.Stdout)
 }
 
 func takeLazily() compromise.CandidateList {

@@ -8,7 +8,6 @@ import (
 	"github.com/omakoto/compromise/src/compromise/internal/adapters"
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/completer"
-	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
 	"github.com/omakoto/compromise/src/compromise/internal/compstore"
 	"github.com/omakoto/compromise/src/compromise/internal/parser"
 	"github.com/omakoto/go-common/src/common"
@@ -16,7 +15,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
 func RunWithFatalCatcher(f func()) {
@@ -131,10 +129,6 @@ func PrintInstallScriptRaw(spec string, listCommandsOnly bool, commandsOverride 
 
 		specFile := adapters.SaveSpec(commands[0], spec)
 		adapter.Install(commands, specFile)
-
-		if !compmisc.Quiet {
-			fmt.Fprintf(os.Stderr, "Installed completion: %s\n", strings.Join(commands, " "))
-		}
 	})
 }
 
