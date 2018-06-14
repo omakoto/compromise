@@ -13,6 +13,7 @@ import (
 	"github.com/omakoto/compromise/src/compromise/internal/parser"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/textio"
+	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -145,18 +146,23 @@ func MaybeHandleCompletionRaw() (ret bool) {
 	if len(os.Args) < 5 {
 		common.Fatalf("not enough arguments. %d given", len(os.Args))
 	}
+	HandleCompletionRaw(func() string {
+		return loadFile(os.Args[2])
+	}, os.Args[3:], os.Stdin, os.Stdout)
+	return
+}
+
+func HandleCompletionRaw(specProducer func() string, args []string, in io.Reader, out io.Writer) {
 	compdebug.Time("total", func() {
 		runWithSpecCatcher(func() {
-			// Read spec.
-			spec := loadFile(os.Args[2])
-
 			// Prepare shell adapter.
-			adapter := adapters.GetShellAdapter(os.Stdin, os.Stdout)
+			adapter := adapters.GetShellAdapter(in, out)
 			defer adapter.Finish()
 
+			spec := specProducer()
 			directives := compromise.ExtractDirectives(spec)
 
-			cl := adapter.GetCommandLine(os.Args[3:])
+			cl := adapter.GetCommandLine(args)
 			compstore.UpdateForInvocation(cl.RawWords(), cl.CursorIndex())
 
 			// Run.
@@ -167,7 +173,6 @@ func MaybeHandleCompletionRaw() (ret bool) {
 			e.Run()
 		})
 	})
-	return
 }
 
 func loadFile(path string) (ret string) {

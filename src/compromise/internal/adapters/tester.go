@@ -6,6 +6,7 @@ import (
 	"github.com/omakoto/go-common/src/shell"
 	"io"
 	"sort"
+	"fmt"
 )
 
 type testerAdapter struct {
@@ -43,9 +44,7 @@ func (a *testerAdapter) Unescape(arg string) string {
 func (a *testerAdapter) GetCommandLine(args []string) *CommandLine {
 	// Ignore the index
 
-	args = args[1:]
-
-	return newCommandLine(a.Unescape, len(args)-1, args)
+	return newCommandLine(a.Unescape, len(args), args)
 }
 
 func (a *testerAdapter) StartCompletion(commandLine *CommandLine) {
@@ -64,9 +63,22 @@ func (a *testerAdapter) EndCompletion() {
 		return a.candidates[i].Value() < a.candidates[j].Value()
 	})
 	for _, v := range a.candidates {
+		if v.Hidden() {
+			a.out.WriteString("#")
+		}
+		if v.Force() {
+			a.out.WriteString("!")
+		}
+		if v.Raw() {
+			a.out.WriteString("~")
+		}
 		a.out.WriteString(v.Value())
 		if v.Continues() {
 			a.out.WriteString("+")
+		}
+		if v.Help() != "" {
+			a.out.WriteString("\t")
+			a.out.WriteString(fmt.Sprintf("%q", v.Help()))
 		}
 		a.out.WriteString("\n")
 	}

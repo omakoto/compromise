@@ -453,7 +453,10 @@ func (a *bashAdapter) Finish() {
 
 // parseContext parses the content passed by __compromise_context_dumper that contains shell variables, etc.
 func (a *bashAdapter) parseContext() {
-	bytes, err := ioutil.ReadAll(os.Stdin)
+	if f, ok := a.in.(*os.File); ok && isatty.IsTerminal(f.Fd()) {
+		common.Fatalf("Stdin is terminal. Direct invocation doesn't work.")
+	}
+	bytes, err := ioutil.ReadAll(a.in)
 	common.Check(err, "cannot read from stdin")
 
 	str := string(bytes)
