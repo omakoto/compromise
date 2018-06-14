@@ -732,6 +732,22 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 		write	# Write all pending state to storage.
 		
+		get-standby-bucket		# Returns the standby bucket of an app.
+			@call :take_user_id
+			@cand takeDevicePackage
+
+		set-standby-bucket		# Puts an app in the standby bucket.
+			@call :take_user_id
+			@cand takeDevicePackage
+			@switch
+				active|working_set|frequent|rare
+
+		send-trim-memory		# Send a memory trim event to a <PROCESS>.  May also supply a raw trim int level.
+			@call :take_user_id
+			@cand takeProcessName
+			@switch
+				HIDDEN|RUNNING_MODERATE|BACKGROUND|RUNNING_LOW|MODERATE|RUNNING_CRITICAL|COMPLETE
+
 @label :pm
 	@switch
 		dump	# dump package
