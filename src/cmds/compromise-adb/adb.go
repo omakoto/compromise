@@ -377,6 +377,9 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 @command mma :mm
 @command mmma :mmm
 
+@command runahat    :runahat
+@command stacktrace :stacktrace
+
 @switchloop "^-"
 	-a # listen on all network interfaces, not just localhost
 
@@ -1294,6 +1297,16 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@switch "^[0-9]"
 				@cand takeInteger
 		-i|--ignore-errors 			# Ignore all errors in commands executed to remake files.
+
+@label :runahat
+	@switch
+		@cand takeProcessName
+		@cand takePid
+
+@label :stacktrace
+	@switch
+		@cand takeProcessName
+		@cand takePid
 
 
 `
