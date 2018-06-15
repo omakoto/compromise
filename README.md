@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/omakoto/compromise.svg?branch=master)](https://travis-ci.org/omakoto/compromise)
 # Compromise (and Bash/Zsh completion for ADB and Go)
 
 Compromise is a Go framework for writing shell completion for Bash / Zsh.
