@@ -12,9 +12,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
-	"regexp"
 )
 
 var (
