@@ -157,10 +157,17 @@ func (n *Node) AddChild(new *Node) {
 	switch new.nodeType {
 	case NodeCommand:
 		cmd := new.command.Word
+		if _, ok := n.root.commandJumpTo[cmd]; ok {
+			panic(compromise.NewSpecErrorf(new.selfToken, "Duplicate command name %s", cmd))
+		}
 		n.root.commandJumpTo[cmd] = new
 		n.root.targetCommands = append(n.root.targetCommands, new.command.Word)
 	case NodeLabel:
-		n.root.labels[strings.ToLower(new.label.Word)] = new
+		label := strings.ToLower(new.label.Word)
+		if _, ok := n.root.labels[label]; ok {
+			panic(compromise.NewSpecErrorf(new.selfToken, "Duplicate label :%s", label))
+		}
+		n.root.labels[label] = new
 	}
 
 	if n.lastChild == nil {

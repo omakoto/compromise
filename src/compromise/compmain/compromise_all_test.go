@@ -130,6 +130,6 @@ func TestBad(t *testing.T) {
 			HandleCompletionRaw(func() string {
 				return string(bindata)
 			}, []string{"dummy"}, nil, buf)
-		})
+		}, "File %s:1", file)
 	}
 }
