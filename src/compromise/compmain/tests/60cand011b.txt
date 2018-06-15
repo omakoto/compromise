@@ -1,0 +1,5 @@
+@cand takeFile "\\.png$"
+===
+command tests/files/dir1/
+===
+// Nothing matches in dir1/, so no candidates.

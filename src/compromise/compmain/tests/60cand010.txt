@@ -1,0 +1,10 @@
+@cand takeFile
+===
+command tests/files/
+===
+tests/files/a001.txt
+tests/files/a002.txt
+tests/files/a003.txt
+tests/files/dir1/+
+tests/files/i001.png
+tests/files/i002.png

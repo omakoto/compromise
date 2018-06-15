@@ -1,0 +1,7 @@
+@cand takeFile "\\.png$"
+===
+command tests/files/
+===
+tests/files/dir1/+
+tests/files/i001.png
+tests/files/i002.png

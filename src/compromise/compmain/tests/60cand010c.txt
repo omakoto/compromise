@@ -1,0 +1,5 @@
+@cand takeFile
+===
+command tests/files/dir1/
+===
+tests/files/dir1/dirfile1.txt
