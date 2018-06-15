@@ -889,13 +889,11 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 @label :settings
 	@switch
-		//	 get [--user <USER_ID> | current] NAMESPACE KEY
 		get			# Retrieve the current value of KEY
 			@call :take_user_id
 			@call :settings_namespace
 			@cand takeSettingKey
 
-		//	 put [--user <USER_ID> | current] NAMESPACE KEY VALUE [TAG] [default]
 		put			# Change the contents of KEY to VALUE
 			@call :take_user_id
 			@call :settings_namespace
@@ -905,12 +903,10 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@switch
 				default # {default} to set as the default, case-insensitive only for global/secure namespace
 
-		//	 delete NAMESPACE KEY
 		delete		# Delete the entry for KEY
 			@call :settings_namespace
 			@cand takeSettingKey
 
-		//	 reset [--user <USER_ID> | current] NAMESPACE {PACKAGE_NAME | RESET_MODE}
 		reset		# Reset the global/secure table for a package with mode
 			@call :take_user_id
 			@call :settings_namespace
@@ -920,30 +916,23 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				untrusted_clear
 				trusted_defaults
 
-		//	 list NAMESPACE
 		list	# Print all defined keys
 			@call :settings_namespace
 
-// settings " --user [ X | current ] "
+// --user [ N | current | all ] NOT not all commands will understand "current" and "all".
 @label :take_user_id
 	@switch "^-"
 		--user # Specify user-id.
 			@switch
 				@cand takeUserId
 					@go_call setUserId
-				current
-					@go_call setUserId
-				all
+				current|all
 					@go_call setUserId
 
 // settings global put " [ global | system | secure ] "
 @label :settings_namespace
 	@switch
-		global
-			@go_call setSettingsNamespace
-		system
-			@go_call setSettingsNamespace
-		secure
+		global|system|secure
 			@go_call setSettingsNamespace
 
 @label :requestsync
@@ -1353,6 +1342,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		vnod
 		checkbuild
 		cts
+		update-api
 
         @cand takeBuildModule
         @cand takeFile
