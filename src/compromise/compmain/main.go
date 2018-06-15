@@ -38,7 +38,6 @@ func MaybeHandleCompletion() {
 	if ret {
 		os.Exit(0)
 	}
-	return
 }
 
 // Call this from main() with a spec.
