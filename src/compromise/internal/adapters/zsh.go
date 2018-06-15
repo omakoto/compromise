@@ -78,12 +78,11 @@ function {{.FuncName}} {
       "$(( $CURRENT - 1 ))" "${words[@]}" )
 }
 
-{{range $command := .CommandNames -}}
-compdef {{$.FuncName}} {{$.Escape $command }}
-{{end}}
+
+compdef {{$.FuncName}}{{range $command := .CommandNames}} {{$.Escape $command }}{{end}}
 
 if [[ "$COMPROMISE_QUIET" != 1 ]] ; then
-  echo "Installed completion:"{{- range $command := .CommandNames }} {{$.Escape $command }}{{end}} 1>&2
+  echo "Installed completion:"{{- range $command := .CommandNames}} {{$.Escape $command }}{{end}} 1>&2
 fi
 `)
 

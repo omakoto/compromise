@@ -135,12 +135,10 @@ function {{.FuncName}} {
   )
 }
 
-{{range $command := .CommandNames -}}
-complete -o nospace -F {{$.FuncName}} -- {{$.Escape $command }}
-{{end}}
+complete -o nospace -F {{$.FuncName}} --{{range $command := .CommandNames}} {{$.Escape $command}}{{end}}
 
 if [[ "$COMPROMISE_QUIET" != 1 ]] ; then
-  echo "Installed completion:"{{- range $command := .CommandNames }} {{$.Escape $command }}{{end}} 1>&2
+  echo "Installed completion:"{{range $command := .CommandNames}} {{$.Escape $command}}{{end}} 1>&2
 fi
      
 `)
