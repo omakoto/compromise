@@ -1,0 +1,6 @@
+@cand takeLazily -a -b
+===
+command ''
+===
+-a
+-b

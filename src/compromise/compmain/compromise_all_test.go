@@ -3,6 +3,7 @@ package compmain
 import (
 	"bytes"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
 	"github.com/omakoto/go-common/src/shell"
@@ -13,7 +14,36 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"regexp"
 )
+
+var (
+	stringHolder string
+)
+
+func takeLazily(args []string) compromise.CandidateList {
+	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
+		ret := make([]compromise.Candidate, 0)
+		for _, a := range args {
+			ret = append(ret, compromise.NewCandidateBuilder().Value(a).Build())
+		}
+		return ret
+	})
+}
+
+func takeStatically(args []string) compromise.CandidateList {
+	ret := make([]compromise.Candidate, 0)
+	for _, a := range args {
+		ret = append(ret, compromise.NewCandidateBuilder().Value(a).Build())
+	}
+	return compromise.StrictCandidates(ret...)
+}
+
+func takeHeldValue() compromise.CandidateList {
+	ret := make([]compromise.Candidate, 0)
+	ret = append(ret, compromise.NewCandidateBuilder().Value(stringHolder).Build())
+	return compromise.StrictCandidates(ret...)
+}
 
 func init() {
 	compmisc.DebugEnabled = true
@@ -21,6 +51,14 @@ func init() {
 	compdebug.CloseLog()
 	os.Setenv("COMPROMISE_SHELL", "tester")
 
+	compfunc.Register("takeLazily", takeLazily)
+	compfunc.Register("takeStatically", takeStatically)
+
+	compfunc.Register("setA", compfunc.SetString(&stringHolder, "A"))
+	compfunc.Register("setB", compfunc.SetString(&stringHolder, "B"))
+	compfunc.Register("setCurrent", compfunc.SetLastSeenString(&stringHolder))
+
+	compfunc.Register("takeHeldValue", takeHeldValue)
 }
 
 func TestFull(t *testing.T) {
@@ -31,6 +69,7 @@ func TestFull(t *testing.T) {
 		return
 	}
 
+	commentsStripper := regexp.MustCompile(`(\n|^)//.*?\n`)
 	for _, f := range files {
 		if !f.Mode().IsRegular() {
 			continue
@@ -43,7 +82,10 @@ func TestFull(t *testing.T) {
 		}
 		compdebug.Debugf("\n*** TEST %s ***\n", file)
 
-		data := strings.TrimRight(string(bindata), " \t\n") + "\n"
+		data := string(bindata)
+		data = commentsStripper.ReplaceAllString(data, "\n")
+
+		data = strings.TrimRight(data, " \t\n") + "\n"
 		splits := strings.SplitN(data, "===\n", 3)
 
 		if len(splits) != 3 {
@@ -97,12 +139,6 @@ func diffPrettyText(diffs []diffmatchpatch.Diff) string {
 	}
 
 	return buff.String()
-}
-
-func takeLazily() compromise.CandidateList {
-	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
-		return nil
-	})
 }
 
 func TestBad(t *testing.T) {

@@ -1,0 +1,6 @@
+@go_call setB
+@cand takeHeldValue
+===
+command ''
+===
+B

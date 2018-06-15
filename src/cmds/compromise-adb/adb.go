@@ -356,6 +356,8 @@ func main() {
 	compmain.Main(spec)
 }
 
+// TODO Please someone write a formatter...
+
 var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() + `
 @command adb
 @command fastboot :fastboot
@@ -1288,16 +1290,19 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 		@cand takeBuildModule "(Test|^Bug)"
 
-
-
 @label :m
 	@call :makeFlags
 	@switchloop
-        @cand takeBuildModule
-        @cand takeFile
+		droid
 		installclean
 		showcommands
-		snod|vnod
+		snod
+		vnod
+		checkbuild
+		cts
+
+        @cand takeBuildModule
+        @cand takeFile
 
 @label :mm
 	@call :makeFlags
@@ -1324,6 +1329,4 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 	@switch
 		@cand takeProcessName
 		@cand takePid
-
-
 `

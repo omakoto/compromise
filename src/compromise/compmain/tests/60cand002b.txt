@@ -1,0 +1,10 @@
+@switch
+    @cand takeStatically -x -y -z
+        xsub
+    @cand takeLazily -a -b -c
+        asub
+xxx
+===
+command -x ''
+===
+xsub

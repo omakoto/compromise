@@ -1,0 +1,11 @@
+@switch
+    @cand takeLazily -a -b -c
+        asub
+    @cand takeStatically -x -y -z
+        xsub
+xxx
+===
+command -x ''
+===
+asub
+//xsub <- TODO: FIXME: this is the "expected" answer, but because how lazy candidates work, -x "matches" the first candidates.

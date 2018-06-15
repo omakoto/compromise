@@ -1,0 +1,15 @@
+aaa
+@switchloop "^-"
+  -a
+    asub
+  -b
+    bsub
+  --
+    @break
+xxx
+===
+command aaa -
+===
+--
+-a
+-b
