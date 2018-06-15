@@ -14,6 +14,7 @@ import (
 	"github.com/omakoto/go-common/src/fileutils"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/ungerik/go-dry"
+	"io/ioutil"
 )
 
 var (
@@ -45,6 +46,8 @@ func init() {
 	compfunc.Register("takeLogcatFilter", takeLogcatFilter)
 
 	compfunc.Register("takeBuildModule", takeBuildModule)
+
+	compfunc.Register("takeJavaFileMethod", takeJavaFileMethod)
 
 	compfunc.Register("setTargetDevice", compfunc.SetString(&targetOption, "-d"))
 	compfunc.Register("setTargetEmulator", compfunc.SetString(&targetOption, "-e"))
@@ -349,6 +352,56 @@ func takeDeviceComponentInner(fetcher func(string) []string) compromise.Candidat
 		return compfunc.StringsToCandidates(fetcher(prefix[0:p]), func(line int, s string, b *compromise.CandidateBuilder) {
 			b.Value(s)
 		})
+	})
+}
+
+// Extract test-method-looking words from a file.
+func findJavaTestMethods(file string) []string {
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil
+	}
+
+	// Just extract all "public void" methods.
+	pat := regexp.MustCompile(`^\s*public\s+void\s+(\w+)\(`)
+
+	ret := make([]string, 0)
+	for _, l := range bytes.Split(b, []byte("\n")) {
+		if m := pat.FindSubmatch(l); m != nil {
+			ret = append(ret, string(m[1]))
+		}
+	}
+	return ret
+}
+
+// Completion for atest-style "Filename#method1,method2,..." arguments.
+func takeJavaFileMethod() compromise.CandidateList {
+	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
+		sharp := strings.Index(prefix, "#")
+		if sharp <= 0 {
+			// Doesn't contain a "#", so just do a file completion.
+			return compfunc.TakeFile(`\.java$`).GetCandidate(prefix)
+		}
+
+		file := prefix[0:sharp]
+
+		resultPrefix := ""
+
+		lastComma := strings.LastIndex(prefix, ",")
+		if lastComma > 0 {
+			// Everything before the last , will be the prefix.
+			resultPrefix = prefix[0:lastComma] + ","
+		} else {
+			// "," not found, so this will be the prefix.
+			resultPrefix = file + "#"
+		}
+
+		ret := make([]compromise.Candidate, 0)
+		for _, method := range findJavaTestMethods(file) {
+			// Append method names to the result prefix (which is either "filename#" or "filename#method1,method2,")
+			ret = append(ret, compromise.NewCandidateBuilder().Value(resultPrefix+method).Continues(true).Build())
+		}
+		return ret
 	})
 }
 
@@ -1286,7 +1339,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 			@break		// TODO Compromise doesn't recoginze it and still suggests flags after --.
 
 	@switchloop
-		@cand takeFile	// TODO Support #method1,method2,...
+		@cand takeJavaFileMethod	// path/to/filename.java#method1,method2,...
 
 		@cand takeBuildModule "(Test|^Bug)"
 
