@@ -41,8 +41,11 @@ var (
 	// Bell style, not used yet.
 	BellStyle = os.Getenv("COMPROMISE_BELL_STYPE")
 
+	// (Bash only) show this many candidates initially. Double tab TAB to see more candidates.
+	FirstMaxCandidates = utils.ParseInt(os.Getenv("COMPROMISE_FIRST_MAX_CANDIDATES"), 10, 40)
+
 	// At most show this many candidates.
-	MaxCandidates = utils.ParseInt(os.Getenv("COMPROMISE_MAX_CANDIDATES"), 10, 1000)
+	MaxCandidates = utils.ParseInt(os.Getenv("COMPROMISE_MAX_CANDIDATES"), 10, 2000)
 
 	// Home is a home directory path.
 	Home = os.Getenv("HOME")

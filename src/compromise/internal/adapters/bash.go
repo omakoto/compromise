@@ -36,6 +36,8 @@ type bashVariables struct {
 
 // bashAdapter is the adapter between bash and compromise.
 type bashAdapter struct {
+	commandLine *CommandLine
+
 	in  io.Reader
 	out *bufio.Writer
 
@@ -245,6 +247,8 @@ func (a *bashAdapter) GetCommandLine(args []string) *CommandLine {
 	// the "filename:" part because that's not the completion target.
 	a.bashDeltaFromReadline = findDeltaFromReadline(ret.RawWordAtCursor(0), ret.bashCompCurrentWord, ret.bashCompWordbreaks, ret)
 
+	a.commandLine = ret
+
 	return ret
 }
 
@@ -385,17 +389,25 @@ func (a *bashAdapter) EndCompletion() {
 
 	// Show candidates on stdout for eval by bash.
 
+	store := compstore.Load()
+
+	omitted := false
 	candCount := 0
 	for _, c := range a.candidates {
-		if a.printCandidate(c) {
+		if c.Matches(a.commandLine.WordAtCursor(0)) && a.printCandidate(c) {
 			candCount++
-			if candCount >= compmisc.MaxCandidates {
-				break
+			if !store.IsDoublePress {
+				if candCount >= compmisc.FirstMaxCandidates {
+					break
+				}
+				omitted = true
+			} else {
+				if candCount >= compmisc.MaxCandidates {
+					break
+				}
 			}
 		}
 	}
-
-	store := compstore.Load()
 
 	// Show help on stderr
 	if candCount > 1 || candCount == 0 {
@@ -428,16 +440,20 @@ func (a *bashAdapter) EndCompletion() {
 			buf.WriteString("\n")
 
 			if !store.IsDoublePress && helpCount >= compmisc.BashHelpMaxCandidates {
-				if compmisc.UseColor {
-					buf.WriteString("\x1b[34m")
-				}
-				buf.WriteString("  [Result omitted; hit tab twice to show all]")
-				if compmisc.UseColor {
-					buf.WriteString("\x1b[0m")
-				}
-				buf.WriteString("\n")
+				omitted = true
 				break
 			}
+		}
+		if omitted {
+			buf.WriteString("\n")
+			if compmisc.UseColor {
+				buf.WriteString("\x1b[34;1m")
+			}
+			buf.WriteString("[Result omitted; hit tab twice to show all]")
+			if compmisc.UseColor {
+				buf.WriteString("\x1b[0m")
+			}
+			buf.WriteString("\n")
 		}
 
 		content := buf.Bytes()
