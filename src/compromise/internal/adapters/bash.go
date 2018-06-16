@@ -72,6 +72,10 @@ func (p *bashParameters) Escape(arg string) string {
 	return shell.Escape(arg)
 }
 
+func (p *bashParameters) CommandEscape(arg string) string {
+	return escapeCommandName(arg, p.Escape)
+}
+
 func (p *bashParameters) Unescape(arg string) string {
 	return shell.Unescape(arg)
 }
@@ -103,7 +107,8 @@ func (a *bashAdapter) Install(targetCommandNames []string, specFile string) {
 
 # Always redraw the current line after completion.
 # This also helps to catch double TAB presses.
-if (( ! {{.SkipBashBind  }} )) ; then
+# (But do bind only when called by interactive shell.)
+if (( ! {{.SkipBashBind  }} )) && [[ "$i" = *i* ]] ; then
   # bind '"\e:1": overwrite-mode' # Not used
   bind '"\e:2": complete'
   bind '"\e:3": redraw-current-line'
@@ -135,10 +140,10 @@ function {{.FuncName}} {
   )
 }
 
-complete -o nospace -F {{$.FuncName}} --{{range $command := .CommandNames}} {{$.Escape $command}}{{end}}
+complete -o nospace -F {{$.FuncName}} --{{range $command := .CommandNames}} {{$.CommandEscape $command}}{{end}}
 
 if [[ "$COMPROMISE_QUIET" != 1 ]] ; then
-  echo "Installed completion:"{{range $command := .CommandNames}} {{$.Escape $command}}{{end}} 1>&2
+  echo "Installed completion:"{{range $command := .CommandNames}} {{$.CommandEscape $command}}{{end}} 1>&2
 fi
      
 `)

@@ -26,7 +26,8 @@ func RunWithFatalCatcher(f func()) {
 
 func PrintInstallScript(spec string, commandsOverride ...string) {
 	RunWithFatalCatcher(func() {
-		PrintInstallScriptRaw(spec, false, commandsOverride...)
+		opts := InstallOptions{In: os.Stdin, Out: os.Stdout}
+		PrintInstallScriptRaw(spec, opts, commandsOverride...)
 	})
 }
 
@@ -52,14 +53,15 @@ func MainRaw(spec string) {
 		common.ExitSuccess()
 	}
 
-	listOnly := false
+	opts := InstallOptions{In: os.Stdin, Out: os.Stdout}
+
 	args := os.Args[1:]
 	if len(args) > 0 && args[0] == "--compromise-list-commands" {
 		args = args[1:]
-		listOnly = true
+		opts.ListCommandsOnly = true
 	}
 
-	PrintInstallScriptRaw(spec, listOnly, args...)
+	PrintInstallScriptRaw(spec, opts, args...)
 }
 
 func runWithSpecCatcher(f func()) {
@@ -103,7 +105,13 @@ func getTargetCommands(original, override []string) []string {
 	return ret
 }
 
-func PrintInstallScriptRaw(spec string, listCommandsOnly bool, commandsOverride ...string) {
+type InstallOptions struct {
+	In               io.Reader
+	Out              io.Writer
+	ListCommandsOnly bool
+}
+
+func PrintInstallScriptRaw(spec string, opts InstallOptions, commandsOverride ...string) {
 	runWithSpecCatcher(func() {
 		// Parse the spec.
 		directives := compromise.ExtractDirectives(spec)
@@ -115,7 +123,7 @@ func PrintInstallScriptRaw(spec string, listCommandsOnly bool, commandsOverride 
 			common.Fatal("spec doesn't contain any @commands; target commands must be passed as arguments")
 		}
 
-		if listCommandsOnly {
+		if opts.ListCommandsOnly {
 			for _, s := range commands {
 				textio.BufferedStdout.WriteString(s)
 				textio.BufferedStdout.WriteString("\n")
@@ -123,7 +131,7 @@ func PrintInstallScriptRaw(spec string, listCommandsOnly bool, commandsOverride 
 			return
 		}
 
-		adapter := adapters.GetShellAdapter(os.Stdin, os.Stdout)
+		adapter := adapters.GetShellAdapter(opts.In, opts.Out)
 		defer adapter.Finish()
 
 		specFile := adapters.SaveSpec(commands[0], spec)
