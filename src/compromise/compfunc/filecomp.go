@@ -17,13 +17,19 @@ func init() {
 
 func TakeFile(reFilenameMatcher string) compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
-		return fileCompFunc(prefix, reFilenameMatcher, true)
+		return fileCompFunc(prefix, reFilenameMatcher, true, nil)
+	})
+}
+
+func TakeFileWithMapper(reFilenameMatcher string, mapper func(builder *compromise.CandidateBuilder)) compromise.CandidateList {
+	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
+		return fileCompFunc(prefix, reFilenameMatcher, true, mapper)
 	})
 }
 
 func TakeDir() compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
-		return fileCompFunc(prefix, "", false)
+		return fileCompFunc(prefix, "", false, nil)
 	})
 }
 
@@ -32,7 +38,7 @@ func IsEmptyDir(path string) bool {
 	return len(files) == 0
 }
 
-func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool) []compromise.Candidate {
+func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool, mapper func(builder *compromise.CandidateBuilder)) []compromise.Candidate {
 	prefixDir, prefixFile := path.Split(prefix)
 	filenameRegexp := regexp.MustCompile(reFilenameMatcher)
 
@@ -42,6 +48,13 @@ func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool) []comprom
 	if err != nil {
 		compdebug.Debugf("Unable to read directory \"%s\": %s\n", prefixDir, err)
 		return nil
+	}
+
+	conv := func(b *compromise.CandidateBuilder) *compromise.CandidateBuilder {
+		if mapper != nil {
+			mapper(b)
+		}
+		return b
 	}
 
 	ret := make([]compromise.Candidate, 0)
@@ -59,13 +72,11 @@ func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool) []comprom
 		compdebug.Debug("      [prefix match]\n")
 
 		if isDir {
-			ret = append(ret,
-				compromise.NewCandidateBuilder().
-					Value(relPath+"/").Continues(!IsEmptyDir(relPath)).NeedsHelp(false).Build())
+			ret = append(ret, conv(compromise.NewCandidateBuilder().Value(relPath+"/").Continues(!IsEmptyDir(relPath)).NeedsHelp(false)).Build())
 			continue
 		}
 		if includeFiles && len(filenameRegexp.FindStringIndex(baseName)) > 0 {
-			ret = append(ret, compromise.NewCandidateBuilder().Value(relPath).NeedsHelp(false).Build())
+			ret = append(ret, conv(compromise.NewCandidateBuilder().Value(relPath).NeedsHelp(false)).Build())
 		}
 	}
 	compdebug.Dump("Filecopletion result=", ret)

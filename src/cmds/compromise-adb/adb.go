@@ -391,8 +391,14 @@ func takeJavaFileMethod() compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
 		sharp := strings.Index(prefix, "#")
 		if sharp <= 0 {
-			// Doesn't contain a "#", so just do a file completion.
-			return compfunc.TakeFile(`\.java$`).GetCandidate(prefix)
+			if fileutils.FileExists(prefix) {
+				// Argument is a filename. Return [filename] + "#".
+				return compromise.StrictCandidates(compromise.NewCandidateBuilder().Value(prefix + "#").Force(true).Continues(true).Build()).GetCandidate("")
+			}
+			// Doesn't contain a "#", so just do a file completion, but don't append " " after a filename.
+			return compfunc.TakeFileWithMapper(`\.java$`, func(b *compromise.CandidateBuilder) {
+				b.Continues(true)
+			}).GetCandidate(prefix)
 		}
 
 		file := prefix[0:sharp]
