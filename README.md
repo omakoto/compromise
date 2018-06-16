@@ -31,7 +31,7 @@ Currently it comes with the following two sets of completions:
 Assuming you have the `go` command installed, just run the following commands in your shell.
 ```bash
 # Get and install the binaries.
-go get -u github.com/omakoto/compromise/src/cmds/...
+go get -v -u github.com/omakoto/compromise/src/cmds/...
 
 # Then to install completion, run them on your shell.
 # Add them to your shell's RC file (.bashrc or .zshrc) to make them persistent.
