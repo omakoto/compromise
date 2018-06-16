@@ -47,7 +47,7 @@ func TestFileCompFunc(t *testing.T) {
 	}
 	for i, v := range tests {
 		assert.NoError(t, os.Chdir(v.cwd), "chdir")
-		res := toStrings(fileCompFunc(v.prefix, v.mask, v.includeFiles))
+		res := toStrings(fileCompFunc(v.prefix, v.mask, v.includeFiles, nil))
 
 		for _, e := range v.expectedFiles {
 			assert.Contains(t, res, e, "#%d %q vs %q", i, e, res)
