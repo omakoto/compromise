@@ -3,9 +3,16 @@
 
 Compromise is a Go framework for writing shell completion for Bash / Zsh.
 
-Currently it comes with the following two completions:
+Currently it comes with the following two sets of completions:
 
- - ADB (Android Debug Bridge, including several shell commands), fastboot, atest and m/mm/mmm
+ - ADB (Android Debug Bridge, including several shell commands), fastboot, atest, m/mm/mmm, etc
+    - Examples:
+        - Most `adb` subcommands, major subcommands for `adb shell [am|pm|settings]`
+         (e.g. `am start-activity [flags] INTENT`), service name for `adb shell [dumpsys|cmd]`
+        - Flags for `fastboot` 
+        - Build target and some pseudo build targets for `m` (`m MODULE`, `m installclean`, etc)
+        - `atest MODULE`, `atest FILENAME#method1,method2,...`
+        - Other commands such as `runahat PROCESSNAME|PID` and `stacks PROCESSNAME|PID`
  - Go
 
 ## Caveat

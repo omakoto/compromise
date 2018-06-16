@@ -828,7 +828,11 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		dump	# dump package
 			@cand takeDevicePackage
 
-		clear|enable|disable|disable-user|disable-until-used|default-state|suspend|unsuspend|set-home-activity # Change package state
+		clear		# Clear app data
+			@call :take_user_id
+			@cand takeDevicePackageComponent
+
+		enable|disable|disable-user|disable-until-used|default-state|suspend|unsuspend|set-home-activity # Change package state
 			@call :take_user_id
 			@cand takeDevicePackageComponent
 
