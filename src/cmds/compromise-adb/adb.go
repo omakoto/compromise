@@ -28,6 +28,7 @@ var (
 func init() {
 	compfunc.Register("takeDevicePackage", takeDevicePackage)
 	compfunc.Register("takeDevicePackageComponent", takeDevicePackageComponent)
+	compfunc.Register("takePermission", takePermission)
 	compfunc.Register("takeDeviceActivity", takeDeviceActivity)
 	compfunc.Register("takeDeviceService", takeDeviceService)
 	compfunc.Register("takeDeviceReceiver", takeDeviceReceiver)
@@ -76,6 +77,17 @@ func adb() string {
 func takeDevicePackage() compromise.CandidateList {
 	return compfunc.BuildCandidateListFromCommandWithMap(adb()+` shell pm list packages 2>/dev/null || true`, func(line int, s string) string {
 		return strings.Replace(s, "package:", "", 1)
+	})
+}
+
+// Generate on-device permission lists.
+func takePermission() compromise.CandidateList {
+	return compfunc.BuildCandidateListFromCommandWithMap(adb()+` shell pm list permissions 2>/dev/null || true`, func(line int, s string) string {
+		p := "permission:"
+		if strings.HasPrefix(s, p) {
+			return s[len(p):]
+		}
+		return ""
 	})
 }
 
@@ -855,6 +867,13 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 						-d # only list dangerous permissions
 						-u # list only the permissions users will see
 					@any # Permission group // TODO
+			
+		grant|revoke # Grant/revoke permission
+			@call :take_user_id
+			@cand takeDevicePackage
+			@cand takePermission
+
+
 
 	// TODO Implement other commands...
 
@@ -882,6 +901,8 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 		starter
 
 @label :dumpsys-package
+	@switch
+		@cand takeDevicePackage
 
 
 @label :cmd
