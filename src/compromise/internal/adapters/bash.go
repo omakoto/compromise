@@ -108,7 +108,7 @@ func (a *bashAdapter) Install(targetCommandNames []string, specFile string) {
 # Always redraw the current line after completion.
 # This also helps to catch double TAB presses.
 # (But do bind only when called by interactive shell.)
-if (( ! {{.SkipBashBind  }} )) && [[ "$i" = *i* ]] ; then
+if (( ! {{.SkipBashBind  }} )) ; then
   # bind '"\e:1": overwrite-mode' # Not used
   bind '"\e:2": complete'
   bind '"\e:3": redraw-current-line'
