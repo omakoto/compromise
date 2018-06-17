@@ -3,10 +3,10 @@ package compfunc
 import (
 	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/common"
 	"reflect"
 	"strings"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 )
 
 // These are the function types that are allowed to be registered.
@@ -152,7 +152,7 @@ func Invoke(name string, context compromise.CompleteContext, args []string) (ret
 	adapter, err := getFunction(name)
 	common.CheckPanice(err) // The function name must have been verified already, so let's panic.
 
-	compdebug.Time("Call go func: " + name, func() {
+	compdebug.Time("Call go func: "+name, func() {
 		ret = adapter(context, args)
 	})
 	return
