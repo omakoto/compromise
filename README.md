@@ -73,8 +73,8 @@ alias cmd="adb shell cmd"
 alias am="adb shell am"
 alias pm="adb shell pm"
 alias settings="adb shell settings"
-alias akill="adb shell akill"
-alias akillall="adb shell akillall"
+alias akill="adb shell kill"
+alias akillall="adb shell killall"
   :
 ```  
 For the full supported command name list, see [the source code](src/cmds/compromise-adb/adb.go).
