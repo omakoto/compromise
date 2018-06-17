@@ -123,6 +123,8 @@ function __compromise_context_dumper {
   jobs
 }
 
+export COMPROMISE_TTY="$(tty)"
+
 # Actual completion function.
 function {{.FuncName}} {
   export COMP_POINT

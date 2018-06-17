@@ -81,7 +81,8 @@ else
         "$(( $CURRENT - 1 ))" "${words[@]}" )
   }
   
-  
+  export COMPROMISE_TTY="$(tty)"
+    
   compdef {{$.FuncName}}{{range $command := .CommandNames}} {{$.Escape $command }}{{end}}
   
   if [[ "$COMPROMISE_QUIET" != 1 ]] ; then

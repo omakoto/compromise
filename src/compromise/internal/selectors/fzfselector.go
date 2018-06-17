@@ -42,6 +42,10 @@ func (s *fzfSelector) Select(prefix string, candidates []compromise.Candidate) (
 	// Start FZF.
 	cmd := exec.Command(compenv.FzfBinName, opts...)
 	cmd.Stderr = os.Stderr
+	tty, _ := os.Create(os.Getenv("COMPROMISE_TTY"))
+	if tty != nil {
+		cmd.Stderr = tty
+	}
 	wr, err := cmd.StdinPipe()
 	if err != nil {
 		return nil, errors.Wrap(err, "StdinPipe failed")
