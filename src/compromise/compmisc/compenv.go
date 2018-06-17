@@ -68,6 +68,13 @@ var (
 	// Persistent storage filename.
 	StoreFilename = path.Join(CompDir, "lastcommand.json")
 
+	// Cached candidates file. If the last completion was very recent and the command line is the same,
+	// compromise reuses cached candidates.
+	CacheFilename = path.Join(CompDir, "lastcandidates.dat")
+
+	// Timeout for the cache.
+	CacheTimeout = time.Duration(utils.ParseInt(os.Getenv("COMPROMISE_CACHE_TIMEOUT_MS"), 10, 500)) * time.Millisecond
+
 	// Where spec files are stored.
 	SpecPath = path.Join(CompDir, "spec")
 
