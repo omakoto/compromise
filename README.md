@@ -55,8 +55,8 @@ go get -v -u github.com/omakoto/compromise/src/cmds/...
 # If you get "command not found", you don't have PATH set up to the go/bin directory.
 # Fix your PATH (and maybe also GOPATH).
 # Or, maybe try the following instead?
-# . <("$(go env GOPATH | sed -e 's/:.*$//')"/bin/compromise-adb) # Install ADB / fastboot / atest / m* completion
-# . <("$(go env GOPATH | sed -e 's/:.*$//')"/bin/compromise-go)  # Install Go completion
+# . <("$(go env GOPATH | sed -e 's/:.*$//')"/bin/compromise-adb)
+# . <("$(go env GOPATH | sed -e 's/:.*$//')"/bin/compromise-go)
 
 ```
  
