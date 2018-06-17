@@ -100,7 +100,7 @@ func TestFull(t *testing.T) {
 		buf := &bytes.Buffer{}
 
 		HandleCompletionRaw(func() string {
-			return "//" + compromise.NewDirectives().SetFilename(file).SetStartLine(0).Json() + "\n" + spec
+			return "//" + compromise.NewDirectives().SetFilename(file).SetStartLine(0).JSON() + "\n" + spec
 		}, commandLine, nil, buf)
 
 		result := buf.String()

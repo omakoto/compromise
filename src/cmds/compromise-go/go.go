@@ -20,7 +20,7 @@ func takeToolName() compromise.CandidateList {
 	})
 }
 
-var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() + `
+var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() + `
 @command go
 
 @switch

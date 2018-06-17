@@ -120,7 +120,7 @@ func (c *candidate) Serialize(wr *bufio.Writer) {
 	wr.WriteString(c.help)
 	wr.WriteByte(0)
 
-	var v byte = 0
+	var v byte
 	if c.raw {
 		v |= raw
 	}
@@ -140,10 +140,10 @@ func (c *candidate) Serialize(wr *bufio.Writer) {
 }
 
 func (c *candidate) Deserialize(rd *bufio.Reader) error {
-	s, err := rd.ReadString(0)
+	s, _ := rd.ReadString(0)
 	c.value = s[0 : len(s)-1]
 
-	s, err = rd.ReadString(0)
+	s, _ = rd.ReadString(0)
 	c.help = s[0 : len(s)-1]
 
 	v, err := rd.ReadByte()
@@ -250,6 +250,6 @@ func (b *CandidateBuilder) NeedsHelp(needsHelp bool) *CandidateBuilder {
 	return b
 }
 
-func (b *CandidateBuilder) Build() *candidate {
+func (b *CandidateBuilder) Build() Candidate {
 	return b.candidate
 }

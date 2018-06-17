@@ -21,7 +21,7 @@ var (
 	targetOption = "" // Either "-d" or "-e"
 	targetSerial = "" // e.g. "emulator-5554"
 
-	targetUserId           = "" // e.g. "0", "10", "current"
+	targetUserID           = "" // e.g. "0", "10", "current"
 	targetSettingNamespace = "" // e.g. "global"
 )
 
@@ -40,7 +40,7 @@ func init() {
 
 	compfunc.Register("takeService", takeService)
 	compfunc.Register("takeSettingKey", takeSettingKey)
-	compfunc.Register("takeUserId", takeUserId)
+	compfunc.Register("takeUserID", takeUserID)
 	compfunc.Register("takePid", takePid)
 	compfunc.Register("takeProcessName", takeProcessName)
 
@@ -54,7 +54,7 @@ func init() {
 	compfunc.Register("setTargetEmulator", compfunc.SetString(&targetOption, "-e"))
 	compfunc.Register("setTargetSerial", compfunc.SetLastSeenString(&targetSerial))
 
-	compfunc.Register("setUserId", compfunc.SetLastSeenString(&targetUserId))
+	compfunc.Register("setUserId", compfunc.SetLastSeenString(&targetUserID))
 	compfunc.Register("setSettingsNamespace", compfunc.SetLastSeenString(&targetSettingNamespace))
 }
 
@@ -142,7 +142,7 @@ func takeSettingKey() compromise.CandidateList {
 }
 
 // Generate lists of user IDs on the device.
-func takeUserId() compromise.CandidateList {
+func takeUserID() compromise.CandidateList {
 	re := regexp.MustCompile(`UserInfo{(\d+)`)
 	return compfunc.BuildCandidateListFromCommandWithMap(adb()+" shell dumpsys user", func(line int, s string) string {
 		if m := re.FindStringSubmatch(s); len(m) > 0 {
@@ -429,7 +429,7 @@ func main() {
 
 // TODO Please someone write a formatter...
 
-var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() + `
+var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() + `
 @command adb
 @command fastboot :fastboot
 @command atest :atest
@@ -797,13 +797,13 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 				@cand takeDevicePackage
 
 		switch-user|start-user|unlock-user 	# Switch/start/unlock a user
-			@cand takeUserId
+			@cand takeUserID
 
 		stop-user 	# Stop a user
 			@switchloop "^-"
 				-w	# wait for stop-user to complete.
 				-f	# force stop even if there are related users that cannot be stopped.
-			@cand takeUserId
+			@cand takeUserID
 
 		write	# Write all pending state to storage.
 
@@ -955,7 +955,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 	@switch "^-"
 		--user # Specify user-id.
 			@switch
-				@cand takeUserId
+				@cand takeUserID
 					@go_call setUserId
 				current|all
 					@go_call setUserId

@@ -44,13 +44,13 @@ func (d *Directives) Tab(tabWidth int) *Directives {
 	return d
 }
 
-func (d *Directives) Json() string {
+func (d *Directives) JSON() string {
 	buffer, err := json.Marshal(d)
 	common.CheckPanic(err, "json.Marshal failed.")
 	return string(buffer)
 }
 
-func (d *Directives) UnmarshalJson(jsonString string) error {
+func (d *Directives) UnmarshalJSON(jsonString string) error {
 	return json.Unmarshal([]byte(jsonString), d)
 }
 
@@ -60,10 +60,10 @@ func ExtractDirectives(spec string) *Directives {
 	if !strings.HasPrefix(spec, "//{") {
 		return ret
 	}
-	directiveJson := spec[2:utils.IndexByteOrLen(spec, '\n')]
-	err := ret.UnmarshalJson(directiveJson)
+	directiveJSON := spec[2:utils.IndexByteOrLen(spec, '\n')]
+	err := ret.UnmarshalJSON(directiveJSON)
 	if err != nil {
-		panic(NewSpecErrorf(nil, "invalid parser directive in line 1 %s: %s", directiveJson, err.Error()))
+		panic(NewSpecErrorf(nil, "invalid parser directive in line 1 %s: %s", directiveJSON, err.Error()))
 	}
 	return ret
 }
