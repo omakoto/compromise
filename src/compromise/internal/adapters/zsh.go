@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
-	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/fileutils"
 	"github.com/omakoto/go-common/src/shell"

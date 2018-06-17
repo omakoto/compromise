@@ -5,7 +5,7 @@ package compdebug
 import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/textio"
 	"io"

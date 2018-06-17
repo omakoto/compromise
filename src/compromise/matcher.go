@@ -1,7 +1,7 @@
 package compromise
 
 import (
-	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"strings"
 )
 

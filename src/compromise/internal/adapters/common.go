@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"github.com/omakoto/compromise/src/compromise/internal/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"github.com/omakoto/go-common/src/common"
 	"io/ioutil"
 	"os"
