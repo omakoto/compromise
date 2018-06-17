@@ -376,8 +376,6 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() +
 
 		@call :packages
 
-// Subroutines....
-
 @label :packages
 	@loop
 		@call :package
