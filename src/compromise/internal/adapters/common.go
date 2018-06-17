@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func getUniqueName(command string) string {
@@ -30,14 +29,6 @@ func SaveSpec(command, spec string) string {
 
 func getFuncName(command string) string {
 	return "__compromise_" + getUniqueName(command) + "_completion"
-}
-
-func escapeCommandName(commandName string, realEscaper func(string) string) string {
-	if strings.HasPrefix(commandName, `@"`) && strings.HasSuffix(commandName, `"`) {
-		return commandName[2 : len(commandName)-1]
-	}
-
-	return realEscaper(commandName)
 }
 
 type stringWriter interface {

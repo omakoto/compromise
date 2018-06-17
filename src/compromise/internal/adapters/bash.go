@@ -71,10 +71,6 @@ func (p *bashParameters) Escape(arg string) string {
 	return shell.Escape(arg)
 }
 
-func (p *bashParameters) CommandEscape(arg string) string {
-	return escapeCommandName(arg, p.Escape)
-}
-
 func (p *bashParameters) Unescape(arg string) string {
 	return shell.Unescape(arg)
 }
@@ -139,10 +135,10 @@ function {{.FuncName}} {
   )
 }
 
-complete -o nospace -F {{$.FuncName}} --{{range $command := .CommandNames}} {{$.CommandEscape $command}}{{end}}
+complete -o nospace -F {{$.FuncName}} --{{range $command := .CommandNames}} {{$.Escape $command}}{{end}}
 
 if [[ "$COMPROMISE_QUIET" != 1 ]] ; then
-  echo "Installed completion:"{{range $command := .CommandNames}} {{$.CommandEscape $command}}{{end}} 1>&2
+  echo "Installed completion:"{{range $command := .CommandNames}} {{$.Escape $command}}{{end}} 1>&2
 fi
      
 `)
