@@ -4,6 +4,7 @@ go:
 - "1.10.x"
 install:
   - sudo apt-get install -y zsh
+  - go get -t ./...
 before_script:
   - go vet ./...
 script:
