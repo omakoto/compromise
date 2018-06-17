@@ -26,7 +26,7 @@ func main() {
 	compmain.Main(spec)
 }
 
-var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() + `
+var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() + `
 @command lunch
 @command a-lunch
 

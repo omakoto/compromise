@@ -15,5 +15,5 @@ package parser
 //	common.Debugf("Result=%s\n", result.Dump(true))
 //}
 //
-//var testSpec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).Json() + `
+//var testSpec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() + `
 //`

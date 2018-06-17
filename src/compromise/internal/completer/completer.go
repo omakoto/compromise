@@ -164,10 +164,10 @@ func (e *Engine) execute() {
 	}
 }
 
-var lastDebugId int32 = -1
+var lastDebugID int32 = -1
 
-func debugId() int {
-	return int(atomic.AddInt32(&lastDebugId, 1))
+func debugID() int {
+	return int(atomic.AddInt32(&lastDebugID, 1))
 }
 
 func (e *Engine) executeNode(n *compast.Node, inSwitch bool, matched *bool) {
@@ -175,7 +175,7 @@ func (e *Engine) executeNode(n *compast.Node, inSwitch bool, matched *bool) {
 		return
 	}
 
-	id := debugId()
+	id := debugID()
 
 	compdebug.Indent()
 	defer compdebug.Unindent()
@@ -326,7 +326,7 @@ func (e *Engine) executeGoCall(n *compast.Node, matched *bool) {
 func (e *Engine) executeSwitchLoop(n *compast.Node, inSwitch, doSwitch bool, doLoop bool, matched *bool) {
 	myLabel := n.LabelWord()
 
-	id := debugId()
+	id := debugID()
 
 	compdebug.Indent()
 	defer compdebug.Unindent()

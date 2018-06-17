@@ -19,9 +19,9 @@ var (
 	lock = &sync.Mutex{}
 	Out  io.WriteCloser
 
-	indent               = 0
-	cachedIndent *string = nil
-	lineStart            = true
+	indent       = 0
+	cachedIndent *string
+	lineStart    = true
 )
 
 func Indent() {

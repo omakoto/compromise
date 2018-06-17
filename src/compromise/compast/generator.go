@@ -25,12 +25,12 @@ func assertTypeOrNil(t *Token, tokenType int, argName string) *Token {
 	return t
 }
 
-var lastId int32 = -1
+var lastID int32 = -1
 
 func newNode(nodeType int, selfToken *Token) *Node {
 	return &Node{
 		depth: 0,
-		id:    int(atomic.AddInt32(&lastId, 1)),
+		id:    int(atomic.AddInt32(&lastID, 1)),
 
 		nodeType:  nodeType,
 		selfToken: selfToken,

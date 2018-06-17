@@ -95,7 +95,6 @@ func LoadCandidates() (result []compromise.Candidate, e error) {
 			return
 		}
 		e = err
-		return
 	})
 	if e != nil {
 		compdebug.Warnf("Cache load error: %s", e)
