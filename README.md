@@ -8,15 +8,12 @@ Currently it comes with the following two sets of completions:
  - ADB (Android Debug Bridge, including several shell commands), fastboot, atest, m/mm/mmm, etc
     - Examples:
         - Most `adb` subcommands, major subcommands for `adb shell [am|pm|settings]`
-         (e.g. `am start-activity [flags] INTENT`), service name for `adb shell [dumpsys|cmd]`
+         (e.g. `am start-activity [flags] INTENT`), and service name for `adb shell [dumpsys|cmd]`
         - Flags for `fastboot` 
-        - Build target and some pseudo build targets for `m` (`m MODULE`, `m installclean`, etc)
+        - Build modules and some pseudo build targets for `m` (`m MODULE`, `m installclean`, etc)
         - `atest MODULE`, `atest FILENAME#method1,method2,...`
         - Other commands such as `runahat PROCESSNAME|PID` and `stacks PROCESSNAME|PID`
  - Go
-
-## Caveat
- It's still in an alpha stage. Details are subject to change, but feedback is welcome.
 
 ## Features
 
@@ -25,7 +22,24 @@ Currently it comes with the following two sets of completions:
  - Show candidate description not only on Zsh but on Bash too.
    - On Bash, completion candidates look like this (type `adb[SPACE][TAB]`):
  <img src="https://raw.githubusercontent.com/omakoto/compromise/master/img/compromise-adb.png" width=600>
- 
+
+ - Interactive selection on Bash using [fzf](https://github.com/junegunn/fzf).
+   See the next section for how to enable it.
+
+### Enabling Interactive Item Selection with [fzf](https://github.com/junegunn/fzf) on Bash
+
+If [fzf](https://github.com/junegunn/fzf) is installed, Compromise can invoke it to let you
+interactively search for a candidate.
+
+ - To enable it, add the following line to your `~/.bashrc`.
+```bash
+export COMPROMISE_USE_FZF=1 
+```
+ - Then press `[TAB]` twice to invoke fzf. (e.g. try `adb[SPACE][TAB][TAB]`)
+
+Invoking fzf from compromise seems to hang Zsh.
+(It's probably supportable, but I haven't figured out how to make it work.)
+  
 ## Installing ADB and/or Go Completion
 
 Assuming you have the `go` command installed, just run the following commands in your shell.
@@ -69,12 +83,21 @@ For the full supported command name list, see [the source code](src/cmds/comprom
 . <(compromise-adb - atest) # Install everything except for the atest completion.  
 ```
 
+### Customization
+
+Some parameters are tunable via environmental variables.
+See [this file](src/compromise/compmisc/compenv.go).
+
+
+## Caveat
+
+ It's still in an alpha stage. Details are subject to change, but feedback is welcome.
+
 ## Known Issues
 
  - Not heavily tested on Zsh yet.
 
 ## TODOs
  - Write tests
- - Add menu completion for bash using [FZF](https://github.com/junegunn/fzf).
  - Cache candidates and only refresh it when "dependency" files are newer. (speed up modulelist)
  

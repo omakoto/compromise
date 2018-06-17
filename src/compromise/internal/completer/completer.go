@@ -10,9 +10,12 @@ import (
 	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"github.com/omakoto/compromise/src/compromise/internal/adapters"
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
+	"github.com/omakoto/compromise/src/compromise/internal/compstore"
 	"github.com/omakoto/compromise/src/compromise/internal/parser"
+	"github.com/omakoto/compromise/src/compromise/internal/selectors"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/utils"
+	"sort"
 	"sync/atomic"
 )
 
@@ -63,9 +66,40 @@ func (e *Engine) Run() {
 	}
 
 	// Push the result.
-	compdebug.Debug("Final candidates:\n")
+	if compmisc.DebugEnabled {
+		compdebug.Debug("Final candidates:\n")
+		for _, c := range e.candidates {
+			compdebug.Debugf("  %s\n", c)
+		}
+	}
+
+	if len(e.candidates) == 0 {
+		return
+	}
+
+	// Sort the result.
+	sort.Slice(e.candidates, func(i, j int) bool {
+		return e.candidates[i].Value() < e.candidates[j].Value()
+	})
+
+	// Maybe try FZF.
+	if e.adapter.SupportsFzf() && compmisc.UseFzf && compstore.Load().IsDoublePress {
+		compdebug.Debug("Trying FZF\n")
+		fzf := selectors.NewFzfSelector()
+		selected, err := fzf.Select(e.commandLine.WordAtCursor(0), e.candidates)
+		if err != nil {
+			compdebug.Warnf("Unable to execute FZF: %s\n", err.Error())
+		} else if selected != nil {
+			// Selected by FZF. Use it.
+			e.adapter.AddCandidate(selected)
+			return
+		}
+	} else {
+		compdebug.Debug("Not using FZF\n")
+	}
+
+	// Pass back to the shell.
 	for _, c := range e.candidates {
-		compdebug.Debugf("  %s\n", c)
 		e.adapter.AddCandidate(c)
 	}
 }

@@ -20,7 +20,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -155,6 +154,11 @@ fi
 // HasMenuCompletion returns false for bash.
 func (a *bashAdapter) HasMenuCompletion() bool {
 	return false
+}
+
+// SupportsFzf returns true; Bash works well with FZF.
+func (a *bashAdapter) SupportsFzf() bool {
+	return true
 }
 
 // Escape is a shell escape function for bash.
@@ -386,10 +390,6 @@ func (a *bashAdapter) printCandidate(c compromise.Candidate) bool {
 }
 
 func (a *bashAdapter) EndCompletion() {
-	sort.Slice(a.candidates, func(i, j int) bool {
-		return a.candidates[i].Value() < a.candidates[j].Value()
-	})
-
 	// Show candidates on stdout for eval by bash.
 
 	store := compstore.Load()
@@ -425,21 +425,7 @@ func (a *bashAdapter) EndCompletion() {
 			helpCount++
 
 			buf.WriteString("  ")
-			if len(c.Value()) > 0 {
-				buf.WriteString(c.Value())
-			} else {
-				buf.WriteString("<ANY>")
-			}
-			if len(c.Help()) > 0 {
-				if compmisc.UseColor {
-					buf.WriteString("\x1b[32m")
-				}
-				buf.WriteString(" : ")
-				buf.WriteString(c.Help())
-				if compmisc.UseColor {
-					buf.WriteString("\x1b[0m")
-				}
-			}
+			AddDisplayString(c, buf)
 			buf.WriteString("\n")
 
 			if !store.IsDoublePress && helpCount >= compmisc.BashHelpMaxCandidates {

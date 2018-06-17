@@ -32,6 +32,9 @@ var (
 	// Whether to use color
 	UseColor = !getBoolEnv("COMPROMISE_NO_COLOR", false)
 
+	HelpStartEscape = utils.FirstNonEmpty(os.Getenv("COMPROMISE_HELP_START"), "\x1b[36m")
+	HelpEndEscape   = utils.FirstNonEmpty(os.Getenv("COMPROMISE_HELP_END"), "\x1b[0m")
+
 	// Whether to do case insensitive match or not.
 	IgnoreCase = getBoolEnv("COMPROMISE_IGNORE_CASE", true)
 
@@ -67,4 +70,16 @@ var (
 
 	// Where spec files are stored.
 	SpecPath = path.Join(CompDir, "spec")
+
+	// Whether to use fzf or not
+	UseFzf = getBoolEnv("COMPROMISE_USE_FZF", false)
+
+	// Filename of the FZF executable.
+	FzfBinName = utils.FirstNonEmpty(os.Getenv("COMPROMISE_FZF_BIN"), "fzf")
+
+	// Whether to show candidates in reverse order on FZF.
+	FzfFlip = getBoolEnv("COMPROMISE_FZF_FLIP", false)
+
+	// Extra options to pass to fzf.
+	FzfOptions = utils.FirstNonEmpty(os.Getenv("COMPROMISE_FZF_OPTIONS"), "")
 )

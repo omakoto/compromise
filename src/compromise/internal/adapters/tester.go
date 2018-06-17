@@ -33,6 +33,10 @@ func (a *testerAdapter) HasMenuCompletion() bool {
 	return false
 }
 
+func (a *testerAdapter) SupportsFzf() bool {
+	return false
+}
+
 func (a *testerAdapter) Escape(arg string) string {
 	return shell.Escape(arg)
 }

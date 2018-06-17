@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"github.com/omakoto/go-common/src/common"
 	"io/ioutil"
@@ -37,4 +38,26 @@ func escapeCommandName(commandName string, realEscaper func(string) string) stri
 	}
 
 	return realEscaper(commandName)
+}
+
+type stringWriter interface {
+	WriteString(s string) (n int, err error)
+}
+
+func AddDisplayString(c compromise.Candidate, bwr stringWriter) {
+	if len(c.Value()) == 0 {
+		bwr.WriteString("<ANY>")
+	} else {
+		bwr.WriteString(c.Value())
+	}
+	if len(c.Help()) > 0 {
+		if compmisc.UseColor {
+			bwr.WriteString(compmisc.HelpStartEscape)
+		}
+		bwr.WriteString(" : ")
+		bwr.WriteString(c.Help())
+		if compmisc.UseColor {
+			bwr.WriteString(compmisc.HelpEndEscape)
+		}
+	}
 }

@@ -98,6 +98,11 @@ func (a *zshAdapter) HasMenuCompletion() bool {
 	return true
 }
 
+// Using FZF will make Zsh hang... But you might be able to find out a work around.
+func (a *zshAdapter) SupportsFzf() bool {
+	return true
+}
+
 func (a *zshAdapter) Escape(arg string) string {
 	return shell.Escape(arg)
 }
