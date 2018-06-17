@@ -6,6 +6,7 @@ import (
 	"github.com/omakoto/go-common/src/common"
 	"reflect"
 	"strings"
+	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 )
 
 // These are the function types that are allowed to be registered.
@@ -147,9 +148,12 @@ func getFunction(name string) (varArgCandidateGeneratorWithContext, error) {
 }
 
 // Invoke invokes a registered function.
-func Invoke(name string, context compromise.CompleteContext, args []string) compromise.CandidateList {
+func Invoke(name string, context compromise.CompleteContext, args []string) (ret compromise.CandidateList) {
 	adapter, err := getFunction(name)
 	common.CheckPanice(err) // The function name must have been verified already, so let's panic.
 
-	return adapter(context, args)
+	compdebug.Time("Call go func: " + name, func() {
+		ret = adapter(context, args)
+	})
+	return
 }

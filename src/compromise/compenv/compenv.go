@@ -23,7 +23,7 @@ var (
 	// Whether to enable debug log or not.
 	DebugEnabled = getBoolEnv("COMPROMISE_DEBUG", false)
 
-	// Whether to enable timing log or not.
+	// Whether to enable timing log or not. (Useful for tuning functions.)
 	Time = getBoolEnv("COMPROMISE_TIME", false)
 
 	// Log filename.

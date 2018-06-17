@@ -154,7 +154,7 @@ func MaybeHandleCompletionRaw() (ret bool) {
 }
 
 func HandleCompletionRaw(specProducer func() string, args []string, in io.Reader, out io.Writer) {
-	compdebug.Time("total", func() {
+	compdebug.Time("Total", func() {
 		runWithSpecCatcher(func() {
 			// Prepare shell adapter.
 			adapter := adapters.GetShellAdapter(in, out)
@@ -168,7 +168,7 @@ func HandleCompletionRaw(specProducer func() string, args []string, in io.Reader
 
 			// Run.
 			e := compengine.NewEngine(adapter, cl, directives)
-			compdebug.Time("parse", func() {
+			compdebug.Time("Parse spec", func() {
 				e.ParseSpec(spec)
 			})
 			e.Run()
@@ -177,7 +177,7 @@ func HandleCompletionRaw(specProducer func() string, args []string, in io.Reader
 }
 
 func loadFile(path string) (ret string) {
-	compdebug.Time("load", func() {
+	compdebug.Time("Load spec file", func() {
 		data, err := ioutil.ReadFile(path)
 		common.Checkf(err, "unable to read from %s", path)
 		ret = string(data)
