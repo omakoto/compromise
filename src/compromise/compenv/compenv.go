@@ -70,6 +70,7 @@ var (
 
 	// Cached candidates file. If the last completion was very recent and the command line is the same,
 	// compromise reuses cached candidates.
+	// Set "" to disable cache.
 	CacheFilename = path.Join(CompDir, "lastcandidates.dat")
 
 	// Timeout for the cache.

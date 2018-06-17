@@ -99,11 +99,11 @@ func UpdateForInvocation(commandLine []string, cursorIndex int) *Store {
 		s.NumConsecutiveInvocations = 1
 	}
 
-	s.IsDoublePress = s.NumConsecutiveInvocations > 1 && s.LastCompletionAge() <= compenv.DoublePressTimeout
-
 	s.LastCompletionTime = s.CurrentCompletionTime
 	s.LastPwd = pwd
 	s.CurrentCompletionTime = now
+
+	s.IsDoublePress = s.NumConsecutiveInvocations > 1 && s.LastCompletionAge() <= compenv.DoublePressTimeout
 
 	compdebug.Dump("Store updated", s)
 

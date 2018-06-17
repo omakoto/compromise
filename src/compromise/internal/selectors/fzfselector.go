@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"io"
 )
 
 type fzfSelector struct {
@@ -74,7 +75,9 @@ func (s *fzfSelector) Select(prefix string, candidates []compromise.Candidate) (
 	// Read the input
 	brd := bufio.NewReader(rd)
 	res, err := brd.ReadString(0)
-	if err != nil {
+	if err == io.EOF {
+		return nil, nil // Canceled.
+	} else if err != nil {
 		return nil, errors.Wrap(err, "ReadString failed")
 	}
 	compdebug.Debugf("Result from FZF: %s\n", res)

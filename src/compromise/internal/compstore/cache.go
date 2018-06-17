@@ -20,6 +20,9 @@ var (
 )
 
 func CacheCandidates(candidates []compromise.Candidate) (e error) {
+	if len(compenv.CacheFilename) == 0 {
+		return nil
+	}
 	compdebug.Time("Saving to cache", func() {
 		cacheLock.Lock()
 		defer cacheLock.Unlock()
@@ -55,11 +58,12 @@ func CacheCandidates(candidates []compromise.Candidate) (e error) {
 }
 
 func LoadCandidates() (result []compromise.Candidate, e error) {
+	if len(compenv.CacheFilename) == 0 {
+		return nil, nil
+	}
 	compdebug.Time("Loading from cache", func() {
 		cacheLock.Lock()
 		defer cacheLock.Unlock()
-
-		compdebug.Warnf("xxx\n")
 
 		rd, err := os.OpenFile(compenv.CacheFilename, os.O_RDONLY, 0)
 		if err != nil {
@@ -73,7 +77,6 @@ func LoadCandidates() (result []compromise.Candidate, e error) {
 		if err == nil {
 			line = line[0 : len(line)-1]
 			size := utils.ParseInt(line, 10, 0)
-			compdebug.Warnf("XXX size=%d\n", size)
 
 			result = make([]compromise.Candidate, 0, size)
 

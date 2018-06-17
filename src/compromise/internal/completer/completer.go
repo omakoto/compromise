@@ -111,6 +111,10 @@ func (e *Engine) Run() {
 			// Selected by FZF. Use it.
 			e.adapter.AddCandidate(selected)
 			return
+		} else {
+			// FZF Launched, and the user didn't select any -> cancel, but go ahead and
+			// let bash show all help / candidates.
+			// TODO: Maybe only show help?
 		}
 	} else {
 		compdebug.Debug("Not using FZF\n")
