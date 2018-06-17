@@ -8,11 +8,11 @@ import (
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/pkg/errors"
+	"io"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
-	"io"
 )
 
 type fzfSelector struct {
