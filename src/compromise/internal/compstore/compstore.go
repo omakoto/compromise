@@ -2,7 +2,7 @@ package compstore
 
 import (
 	"encoding/json"
-	"github.com/omakoto/compromise/src/compromise/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/utils"
@@ -19,6 +19,7 @@ type Store struct {
 	LastCommandLine           []string
 	LastCursorIndex           int
 	LastCompletionTime        time.Time
+	CurrentCompletionTime     time.Time
 	LastPwd                   string
 	NumConsecutiveInvocations int
 	IsDoublePress             bool
@@ -36,7 +37,7 @@ func ensureLoadedLocked() {
 	}
 	s = &Store{}
 
-	f := compmisc.StoreFilename
+	f := compenv.StoreFilename
 	if dry.FileExists(f) {
 		data, err := dry.FileGetBytes(f)
 		if err != nil {
@@ -57,7 +58,7 @@ func saveLocked() {
 		return
 	}
 
-	f := compmisc.StoreFilename
+	f := compenv.StoreFilename
 	err := os.MkdirAll(filepath.Dir(f), 0700)
 	if err != nil {
 		common.Warnf("unable to create directory for %s", f)
@@ -98,14 +99,19 @@ func UpdateForInvocation(commandLine []string, cursorIndex int) *Store {
 		s.NumConsecutiveInvocations = 1
 	}
 
-	s.IsDoublePress = s.NumConsecutiveInvocations > 1 && now.Sub(s.LastCompletionTime) <= compmisc.DoublePressTimeout
+	s.IsDoublePress = s.NumConsecutiveInvocations > 1 && s.LastCompletionAge() <= compenv.DoublePressTimeout
 
+	s.LastCompletionTime = s.CurrentCompletionTime
 	s.LastPwd = pwd
-	s.LastCompletionTime = now
+	s.CurrentCompletionTime = now
 
 	compdebug.Dump("Store updated", s)
 
 	saveLocked()
 
 	return s
+}
+
+func (s *Store) LastCompletionAge() time.Duration {
+	return clock.Now().Sub(s.LastCompletionTime)
 }

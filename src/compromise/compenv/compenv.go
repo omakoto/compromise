@@ -1,4 +1,4 @@
-package compmisc
+package compenv
 
 import (
 	"github.com/omakoto/go-common/src/utils"
@@ -73,7 +73,7 @@ var (
 	CacheFilename = path.Join(CompDir, "lastcandidates.dat")
 
 	// Timeout for the cache.
-	CacheTimeout = time.Duration(utils.ParseInt(os.Getenv("COMPROMISE_CACHE_TIMEOUT_MS"), 10, 500)) * time.Millisecond
+	CacheTimeout = time.Duration(utils.ParseInt(os.Getenv("COMPROMISE_CACHE_TIMEOUT_MS"), 10, 1000)) * time.Millisecond
 
 	// Where spec files are stored.
 	SpecPath = path.Join(CompDir, "spec")

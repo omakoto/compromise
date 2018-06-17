@@ -6,8 +6,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mattn/go-isatty"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
-	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/compstore"
 	"github.com/omakoto/go-common/src/common"
@@ -87,15 +87,15 @@ func (a *bashAdapter) Install(targetCommandNames []string, specFile string) {
 	p.ExecutableName = path
 	p.CommandNames = targetCommandNames
 	p.SkipBashBind = "0"
-	if compmisc.BashSkipBind {
+	if compenv.BashSkipBind {
 		p.SkipBashBind = "1"
 	}
 	p.CompletionIgnoreCase = "off"
 	p.CompletionMapCase = "off"
-	if compmisc.IgnoreCase {
+	if compenv.IgnoreCase {
 		p.CompletionIgnoreCase = "on"
 	}
-	if compmisc.MapCase {
+	if compenv.MapCase {
 		p.CompletionMapCase = "on"
 	}
 
@@ -400,12 +400,12 @@ func (a *bashAdapter) EndCompletion() {
 		if c.Matches(a.commandLine.WordAtCursor(0)) && a.printCandidate(c) {
 			candCount++
 			if !store.IsDoublePress {
-				if candCount >= compmisc.FirstMaxCandidates {
+				if candCount >= compenv.FirstMaxCandidates {
 					break
 				}
 				omitted = true
 			} else {
-				if candCount >= compmisc.MaxCandidates {
+				if candCount >= compenv.MaxCandidates {
 					break
 				}
 			}
@@ -428,18 +428,18 @@ func (a *bashAdapter) EndCompletion() {
 			AddDisplayString(c, buf)
 			buf.WriteString("\n")
 
-			if !store.IsDoublePress && helpCount >= compmisc.BashHelpMaxCandidates {
+			if !store.IsDoublePress && helpCount >= compenv.BashHelpMaxCandidates {
 				omitted = true
 				break
 			}
 		}
 		if omitted {
 			buf.WriteString("\n")
-			if compmisc.UseColor {
+			if compenv.UseColor {
 				buf.WriteString("\x1b[34;1m")
 			}
 			buf.WriteString("[Result omitted; hit tab twice to show all]")
-			if compmisc.UseColor {
+			if compenv.UseColor {
 				buf.WriteString("\x1b[0m")
 			}
 			buf.WriteString("\n")

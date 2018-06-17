@@ -5,7 +5,7 @@ package compdebug
 import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/omakoto/compromise/src/compromise/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/textio"
 	"io"
@@ -41,21 +41,21 @@ func Unindent() {
 }
 
 func Dump(msg string, val interface{}) {
-	if !compmisc.DebugEnabled {
+	if !compenv.DebugEnabled {
 		return
 	}
 	write(msg + spew.Sdump(val) + "\n")
 }
 
 func Debug(msg string) {
-	if !compmisc.DebugEnabled {
+	if !compenv.DebugEnabled {
 		return
 	}
 	write(msg)
 }
 
 func Debugf(format string, args ...interface{}) {
-	if !compmisc.DebugEnabled {
+	if !compenv.DebugEnabled {
 		return
 	}
 	write(fmt.Sprintf(format, args...))
@@ -70,7 +70,7 @@ func Warnf(format string, args ...interface{}) {
 }
 
 func Time(what string, f func()) {
-	if compmisc.Time {
+	if compenv.Time {
 		start := time.Now()
 		defer func() {
 			end := time.Now()
@@ -99,7 +99,7 @@ func write(s string) {
 
 	if Out == nil {
 		var err error
-		file := compmisc.LogFile
+		file := compenv.LogFile
 		Out, err = os.Create(file)
 		if err != nil {
 			common.Warnf("Unable to open \"%s\"", file)

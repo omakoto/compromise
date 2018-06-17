@@ -3,7 +3,7 @@ package selectors
 import (
 	"bufio"
 	"github.com/omakoto/compromise/src/compromise"
-	"github.com/omakoto/compromise/src/compromise/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/internal/adapters"
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/shell"
@@ -25,7 +25,7 @@ func NewFzfSelector() Selector {
 
 func (s *fzfSelector) Select(prefix string, candidates []compromise.Candidate) (compromise.Candidate, error) {
 	opts := make([]string, 0)
-	opts = append(opts, shell.Split(compmisc.FzfOptions)...)
+	opts = append(opts, shell.Split(compenv.FzfOptions)...)
 	opts = append(opts, "--with-nth", "2..", "-n", "1..") // Don't show and search the first field.
 
 	// +s: Don't sort, because we candidates are already sorted.
@@ -34,12 +34,12 @@ func (s *fzfSelector) Select(prefix string, candidates []compromise.Candidate) (
 
 	opts = append(opts, "-q", prefix)
 
-	if !compmisc.FzfFlip {
+	if !compenv.FzfFlip {
 		opts = append(opts, "--tac")
 	}
 
 	// Start FZF.
-	cmd := exec.Command(compmisc.FzfBinName, opts...)
+	cmd := exec.Command(compenv.FzfBinName, opts...)
 	cmd.Stderr = os.Stderr
 	wr, err := cmd.StdinPipe()
 	if err != nil {

@@ -3,8 +3,8 @@ package compmain
 import (
 	"bytes"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
-	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -46,8 +46,9 @@ func takeHeldValue() compromise.CandidateList {
 }
 
 func init() {
-	compmisc.DebugEnabled = true
-	compmisc.LogFile = "/tmp/compromise-test.log"
+	compenv.DebugEnabled = true
+	compenv.LogFile = "/tmp/compromise-test.log"
+	compenv.CacheTimeout = -1
 	compdebug.CloseLog()
 	os.Setenv("COMPROMISE_SHELL", "tester")
 

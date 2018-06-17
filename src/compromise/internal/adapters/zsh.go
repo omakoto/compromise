@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
-	"github.com/omakoto/compromise/src/compromise/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/fileutils"
 	"github.com/omakoto/go-common/src/shell"
@@ -128,7 +128,7 @@ func (a *zshAdapter) MaybeOverrideCandidates(commandLine *CommandLine) []comprom
 }
 
 func (a *zshAdapter) AddCandidate(c compromise.Candidate) {
-	if len(a.candidates) < compmisc.MaxCandidates {
+	if len(a.candidates) < compenv.MaxCandidates {
 		a.candidates = append(a.candidates, c)
 	}
 }

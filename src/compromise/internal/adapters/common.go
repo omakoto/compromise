@@ -2,7 +2,7 @@ package adapters
 
 import (
 	"github.com/omakoto/compromise/src/compromise"
-	"github.com/omakoto/compromise/src/compromise/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/go-common/src/common"
 	"io/ioutil"
 	"os"
@@ -15,7 +15,7 @@ func getUniqueName(command string) string {
 }
 
 func specFileName(command string) string {
-	dir := compmisc.SpecPath
+	dir := compenv.SpecPath
 	err := os.MkdirAll(dir, 0700)
 	common.Checkf(err, "unable to create directory %s", dir)
 	return filepath.Join(dir, "compspec_"+getUniqueName(command)+".txt")
@@ -51,13 +51,13 @@ func AddDisplayString(c compromise.Candidate, bwr stringWriter) {
 		bwr.WriteString(c.Value())
 	}
 	if len(c.Help()) > 0 {
-		if compmisc.UseColor {
-			bwr.WriteString(compmisc.HelpStartEscape)
+		if compenv.UseColor {
+			bwr.WriteString(compenv.HelpStartEscape)
 		}
 		bwr.WriteString(" : ")
 		bwr.WriteString(c.Help())
-		if compmisc.UseColor {
-			bwr.WriteString(compmisc.HelpEndEscape)
+		if compenv.UseColor {
+			bwr.WriteString(compenv.HelpEndEscape)
 		}
 	}
 }

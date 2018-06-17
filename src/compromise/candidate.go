@@ -1,6 +1,7 @@
 package compromise
 
 import (
+	"bufio"
 	"fmt"
 )
 
@@ -32,6 +33,10 @@ type Candidate interface {
 	// Whether it needs to be shown in the help section or not
 	// TODO Do we really need it?
 	NeedsHelp() bool
+
+	Serialize(wr *bufio.Writer)
+
+	Deserialize(rd *bufio.Reader) error
 }
 
 type candidate struct {
@@ -47,6 +52,15 @@ type candidate struct {
 var _ Candidate = (*candidate)(nil)
 var _ CandidateList = (*candidate)(nil)
 var _ fmt.Stringer = (*candidate)(nil)
+
+const (
+	raw = 1 << iota
+	hidden
+	continues
+	force
+	help
+	needsHelp
+)
 
 func (c *candidate) String() string {
 	return fmt.Sprintf("value=%q, raw=%v, continues=%v, hidden=%v, force=%v, help=%q", c.value, c.raw, c.continues, c.hidden, c.force, c.help)
@@ -93,6 +107,68 @@ func (c *candidate) GetCandidate(prefix string) []Candidate {
 		return []Candidate{c}
 	}
 	return nil
+}
+
+func readBool(rd *bufio.Reader) (bool, error) {
+	b, err := rd.ReadByte()
+	return b != 0, err
+}
+
+func (c *candidate) Serialize(wr *bufio.Writer) {
+	wr.WriteString(c.value)
+	wr.WriteByte(0)
+	wr.WriteString(c.help)
+	wr.WriteByte(0)
+
+	var v byte = 0
+	if c.raw {
+		v |= raw
+	}
+	if c.hidden {
+		v |= hidden
+	}
+	if c.continues {
+		v |= continues
+	}
+	if c.force {
+		v |= force
+	}
+	if c.needsHelp {
+		v |= needsHelp
+	}
+	wr.WriteByte(v)
+}
+
+func (c *candidate) Deserialize(rd *bufio.Reader) error {
+	s, err := rd.ReadString(0)
+	c.value = s[0 : len(s)-1]
+
+	s, err = rd.ReadString(0)
+	c.help = s[0 : len(s)-1]
+
+	v, err := rd.ReadByte()
+	if (v & raw) != 0 {
+		c.raw = true
+	}
+	if (v & hidden) != 0 {
+		c.hidden = true
+	}
+	if (v & continues) != 0 {
+		c.continues = true
+	}
+	if (v & force) != 0 {
+		c.force = true
+	}
+	if (v & needsHelp) != 0 {
+		c.needsHelp = true
+	}
+	return err
+}
+
+func Deserialize(rd *bufio.Reader) (Candidate, error) {
+	ret := candidate{}
+	err := ret.Deserialize(rd)
+	return &ret, err
 }
 
 //var reCandidateParser = regexp.MustCompile(`^([rhcf]*:)?\s*(\S+)(?:\s+#\s*(.*))?$`)

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compast"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
-	"github.com/omakoto/compromise/src/compromise/compmisc"
 	"github.com/omakoto/compromise/src/compromise/internal/adapters"
 	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/compstore"
@@ -44,7 +44,7 @@ func NewEngine(adapter adapters.ShellAdapter, commandLine *adapters.CommandLine,
 
 func (e *Engine) ParseSpec(spec string) {
 	ast := parser.Parse(spec, e.directives)
-	if compmisc.DebugEnabled {
+	if compenv.DebugEnabled {
 		compdebug.Debugf("Spec=%s\n", ast.Dump(true))
 	}
 	e.astRoot = ast
@@ -57,33 +57,51 @@ func (e *Engine) Run() {
 	e.adapter.StartCompletion(e.commandLine)
 	defer e.adapter.EndCompletion()
 
-	// Execute.
-	e.addCandidates(e.adapter.MaybeOverrideCandidates(e.commandLine)...)
-	if e.candidates != nil {
-		compdebug.Dump("  -> Candidates overridden=", e.candidates)
-	} else {
-		e.execute()
-	}
-
-	// Push the result.
-	if compmisc.DebugEnabled {
-		compdebug.Debug("Final candidates:\n")
-		for _, c := range e.candidates {
-			compdebug.Debugf("  %s\n", c)
+	store := compstore.Load()
+	cacheAge := store.LastCompletionAge()
+	compdebug.Debugf("Cache age: %v\n", cacheAge)
+	if store.NumConsecutiveInvocations > 1 && cacheAge <= compenv.CacheTimeout {
+		cached, _ := compstore.LoadCandidates()
+		if len(cached) > 0 {
+			e.addCandidates(cached...)
 		}
+	}
+	if e.candidates == nil {
+		// Execute.
+		compdebug.Time("Maybe override", func() {
+			e.addCandidates(e.adapter.MaybeOverrideCandidates(e.commandLine)...)
+		})
+		if e.candidates != nil {
+			compdebug.Dump("  -> Candidates overridden=", e.candidates)
+		} else {
+			compdebug.Time("Execute", func() {
+				e.execute()
+			})
+		}
+
+		// Push the result.
+		if compenv.DebugEnabled {
+			compdebug.Debug("Final candidates:\n")
+			for _, c := range e.candidates {
+				compdebug.Debugf("  %s\n", c)
+			}
+		}
+
+		// Sort the result.
+		sort.Slice(e.candidates, func(i, j int) bool {
+			return e.candidates[i].Value() < e.candidates[j].Value()
+		})
+
+		// Cache the candidates.
+		compstore.CacheCandidates(e.candidates)
 	}
 
 	if len(e.candidates) == 0 {
 		return
 	}
 
-	// Sort the result.
-	sort.Slice(e.candidates, func(i, j int) bool {
-		return e.candidates[i].Value() < e.candidates[j].Value()
-	})
-
 	// Maybe try FZF.
-	if e.adapter.SupportsFzf() && compmisc.UseFzf && compstore.Load().IsDoublePress {
+	if e.adapter.SupportsFzf() && compenv.UseFzf && compstore.Load().IsDoublePress {
 		compdebug.Debug("Trying FZF\n")
 		fzf := selectors.NewFzfSelector()
 		selected, err := fzf.Select(e.commandLine.WordAtCursor(0), e.candidates)

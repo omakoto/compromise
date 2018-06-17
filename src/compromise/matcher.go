@@ -1,7 +1,7 @@
 package compromise
 
 import (
-	"github.com/omakoto/compromise/src/compromise/compmisc"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"strings"
 )
 
@@ -21,10 +21,10 @@ func hyphenMapper(s string) string {
 }
 
 func init() {
-	if compmisc.IgnoreCase {
+	if compenv.IgnoreCase {
 		setConverter(strings.ToLower)
 	}
-	if compmisc.MapCase {
+	if compenv.MapCase {
 		setConverter(hyphenMapper)
 	}
 }
