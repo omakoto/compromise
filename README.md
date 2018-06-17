@@ -86,7 +86,7 @@ For the full supported command name list, see [the source code](src/cmds/comprom
 ### Customization
 
 Some parameters are tunable via environmental variables.
-See [this file](src/compromise/compmisc/compenv.go).
+See [this file](src/compromise/compenv/compenv.go).
 
 
 ## Caveat
