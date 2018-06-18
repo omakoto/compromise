@@ -62,6 +62,9 @@ var (
 	// On bash, do not execute bind commands
 	BashSkipBind = getBoolEnv("COMPROMISE_BASH_SKIP_BINDS", false)
 
+	// On zsh, do not execute bindkey commands
+	ZshSkipBind = getBoolEnv("COMPROMISE_ZSH_SKIP_BINDS", false)
+
 	// Compromise dot directory path.
 	CompDir = utils.FirstNonEmpty(os.Getenv("COMPROMISE_DIR"), filepath.Join(Home, ".compromise"))
 

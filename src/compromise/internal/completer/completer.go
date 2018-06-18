@@ -102,22 +102,22 @@ func (e *Engine) Run() {
 
 	// Maybe try FZF.
 	if e.adapter.SupportsFzf() && compenv.UseFzf && compstore.Load().IsDoublePress {
-		compdebug.Debug("Trying FZF\n")
+		compdebug.Debug("Trying fzf\n")
 		fzf := selectors.NewFzfSelector()
 		selected, err := fzf.Select(e.commandLine.WordAtCursor(0), e.candidates)
 		if err != nil {
-			compdebug.Warnf("Unable to execute FZF: %s\n", err.Error())
+			compdebug.Warnf("Unable to execute fzf: %s\n", err.Error())
 		} else if selected != nil {
-			// Selected by FZF. Use it.
+			// Selected by fzf. Use it.
 			e.adapter.AddCandidate(selected)
 			return
 		} else {
-			// FZF Launched, and the user didn't select any -> cancel, but go ahead and
-			// let bash show all help / candidates.
-			// TODO: Maybe only show help?
+			// fzf Launched, and the user didn't select. Stop.
+			compdebug.Debug("Use canceled on fzf\n")
+			return
 		}
 	} else {
-		compdebug.Debug("Not using FZF\n")
+		compdebug.Debug("Not using fzf\n")
 	}
 
 	// Pass back to the shell.

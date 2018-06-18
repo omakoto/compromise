@@ -23,10 +23,10 @@ Currently it comes with the following two sets of completions:
    - On Bash, completion candidates look like this (type `adb[SPACE][TAB]`):
  <img src="https://raw.githubusercontent.com/omakoto/compromise/master/img/compromise-adb.png" width=600>
 
- - Interactive selection on Bash using [fzf](https://github.com/junegunn/fzf).
+ - Interactive selection (searching candidates with a query) on Bash using [fzf](https://github.com/junegunn/fzf).
    See the next section for how to enable it.
 
-### Enabling Interactive Item Selection with [fzf](https://github.com/junegunn/fzf) on Bash
+### Enabling Interactive Item Selection with [fzf](https://github.com/junegunn/fzf) on Bash (and maybe on Zsh too)
 
 If [fzf](https://github.com/junegunn/fzf) is installed, Compromise can invoke it to let you
 interactively search for a candidate.
@@ -37,8 +37,9 @@ export COMPROMISE_USE_FZF=1
 ```
  - Then press `[TAB]` twice to invoke fzf. (e.g. try `adb[SPACE][TAB][TAB]`)
 
-Invoking fzf from compromise seems to hang Zsh.
-(It's probably supportable, but I haven't figured out how to make it work.)
+This also seems to work on Zsh too, but Zsh won't redraw the current line afterwords,
+so it's a bit awkward. (For now, just refresh the command line by pressing `[ALT]+[Shift]+R`)
+ 
   
 ## Installing ADB and/or Go Completion
 
