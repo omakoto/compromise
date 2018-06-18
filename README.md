@@ -48,6 +48,9 @@ Assuming you have the `go` command installed, just run the following commands in
 # Get and install the binaries.
 go get -v -u github.com/omakoto/compromise/src/cmds/...
 
+# Also install fzf, if you haven't already.
+go get -v -u github.com/junegunn/fzf
+
 # Then to install completion, run them on your shell.
 # Add them to your shell's RC file (.bashrc or .zshrc) to make them persistent.
 . <(compromise-adb) # Install ADB / fastboot / atest / m* completion
