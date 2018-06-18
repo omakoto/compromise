@@ -50,6 +50,7 @@ type zshParameters struct {
 	ExecutableName string
 	CommandNames   []string
 	SpecFile       string
+	SkipZshBind    string
 
 	EvalStr string
 }
@@ -70,6 +71,10 @@ func (a *zshAdapter) Install(targetCommandNames []string, specFile string) {
 	p.ExecutableName = path
 	p.CommandNames = targetCommandNames
 	p.SpecFile = specFile
+	p.SkipZshBind = "0"
+	if compenv.ZshSkipBind {
+		p.SkipZshBind = "1"
+	}
 
 	command := []string{
 		shell.Escape(p.ExecutableName),
@@ -92,11 +97,18 @@ else
 	
 	# Note we want to redraw the current line here, in case we did fzf. But how?
 	# Fzf's completion binding solves it by making it a widget and binding [TAB] to it.
-	# But if we do that too, that'd conflict with fzf's.
+	# But if we do that too, that'd czonflict with fzf's.
+	# One possible hacky workaround: https://stackoverflow.com/questions/48055589
+	#
+	# So for now, we just bind Alt+Shift+R to refresh command line.
   }
   
   compdef {{$.FuncName}}{{range $command := .CommandNames}} {{$.Escape $command }}{{end}}
-  
+	
+  if (( ! {{.SkipZshBind  }} )) ; then
+	bindkey '^[R' redisplay # Alt+Shift+R to refresh command line.
+  fi
+
   if [[ "$COMPROMISE_QUIET" != 1 ]] ; then
     echo "Installed completion:"{{- range $command := .CommandNames}} {{$.Escape $command }}{{end}} 1>&2
   fi

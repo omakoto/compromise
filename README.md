@@ -37,7 +37,9 @@ export COMPROMISE_USE_FZF=1
 ```
  - Then press `[TAB]` twice to invoke fzf. (e.g. try `adb[SPACE][TAB][TAB]`)
 
-This also seems to work on Zsh too, but Zsh won't redraw the current line afterwords, so it's a bit awkward. 
+This also seems to work on Zsh too, but Zsh won't redraw the current line afterwords,
+so it's a bit awkward. (For now, just refresh the command line by pressing `[ALT]+[Shift]+R`)
+ 
   
 ## Installing ADB and/or Go Completion
 
