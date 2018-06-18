@@ -399,9 +399,9 @@ func (a *bashAdapter) EndCompletion() {
 				if candCount >= compenv.FirstMaxCandidates {
 					break
 				}
-				omitted = true
 			} else {
 				if candCount >= compenv.MaxCandidates {
+					omitted = true
 					break
 				}
 			}
