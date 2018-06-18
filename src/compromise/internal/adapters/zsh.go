@@ -90,9 +90,9 @@ else
   function {{.FuncName}} {
     eval "$( {{- .EvalStr -}} )"
 	
-	# Now we want to redraw the line if we did fzf... How?
-	# zle redisplay # This requires the current code to be a widget, which it's not. Hmm.
-	# typeset -f zle-line-init >/dev/null && zle zle-line-init # fzf does it too.
+	# Note we want to redraw the current line here, in case we did fzf. But how?
+	# Fzf's completion binding solves it by making it a widget and binding [TAB] to it.
+	# But if we do that too, that'd conflict with fzf's.
   }
   
   compdef {{$.FuncName}}{{range $command := .CommandNames}} {{$.Escape $command }}{{end}}
