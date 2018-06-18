@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compast"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/internal/adapters"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/compstore"
 	"github.com/omakoto/compromise/src/compromise/internal/parser"
 	"github.com/omakoto/compromise/src/compromise/internal/selectors"
@@ -291,6 +291,7 @@ func (e *Engine) executeCandidateNode(n *compast.Node, inSwitch bool, genCands f
 	curWord := e.commandLine.WordAt(0)
 
 	if e.collecting() {
+		compdebug.Debugf("  Collecting for %q\n", curWord)
 		e.addCandidates(genCands().GetCandidate(curWord)...)
 		if !inSwitch {
 			panicFinish("cursor word consumed")

@@ -12,6 +12,7 @@ Currently it comes with the following two sets of completions:
         - Flags for `fastboot` 
         - Build modules and some pseudo build targets for `m` (`m MODULE`, `m installclean`, etc)
         - `atest MODULE`, `atest FILENAME#method1,method2,...`
+          (* _Method name completion doesn't seem work well on Zsh_)  
         - Other commands such as `runahat PROCESSNAME|PID` and `stacks PROCESSNAME|PID`
  - Go
 

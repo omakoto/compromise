@@ -5,8 +5,8 @@ package compmain
 import (
 	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/adapters"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/completer"
 	"github.com/omakoto/compromise/src/compromise/internal/compstore"
 	"github.com/omakoto/compromise/src/compromise/internal/parser"

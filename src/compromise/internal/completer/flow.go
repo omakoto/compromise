@@ -5,7 +5,7 @@ package compengine
 import (
 	"fmt"
 	"github.com/omakoto/compromise/src/compromise/compast"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 )
 
 // flowControl will be thrown with panic() with a flow control node such as NodeBreak for global escaping.

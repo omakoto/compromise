@@ -3,8 +3,8 @@ package compstore
 import (
 	"bufio"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/compenv"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/utils"
 	"github.com/pkg/errors"

@@ -3,9 +3,9 @@ package selectors
 import (
 	"bufio"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/internal/adapters"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/pkg/errors"
 	"io"

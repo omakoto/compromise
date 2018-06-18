@@ -3,9 +3,9 @@ package compmain
 import (
 	"bytes"
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/stretchr/testify/assert"

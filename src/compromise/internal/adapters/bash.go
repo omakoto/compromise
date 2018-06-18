@@ -8,7 +8,7 @@ import (
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/internal/compstore"
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/fileutils"
