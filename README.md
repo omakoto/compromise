@@ -106,6 +106,5 @@ See [this file](src/compromise/compenv/compenv.go).
  - Not heavily tested on Zsh yet.
 
 ## TODOs
- - Write tests
- - Cache candidates and only refresh it when "dependency" files are newer. (speed up modulelist)
+ - Write tests for compromise-adb/go.
  
