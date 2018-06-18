@@ -89,5 +89,5 @@ var (
 	FzfFlip = getBoolEnv("COMPROMISE_FZF_FLIP", false)
 
 	// Extra options to pass to fzf.
-	FzfOptions = utils.FirstNonEmpty(os.Getenv("COMPROMISE_FZF_OPTIONS"), "")
+	FzfOptions = utils.FirstNonEmpty(os.Getenv("COMPROMISE_FZF_OPTIONS"), "--height 40%")
 )
