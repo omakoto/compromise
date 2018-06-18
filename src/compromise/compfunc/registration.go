@@ -3,7 +3,7 @@ package compfunc
 import (
 	"fmt"
 	"github.com/omakoto/compromise/src/compromise"
-	"github.com/omakoto/compromise/src/compromise/internal/compdebug"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/go-common/src/common"
 	"reflect"
 	"strings"
@@ -153,6 +153,7 @@ func Invoke(name string, context compromise.CompleteContext, args []string) (ret
 	common.CheckPanice(err) // The function name must have been verified already, so let's panic.
 
 	compdebug.Time("Call go func: "+name, func() {
+		compdebug.Debugf("Calling %s with args %v\n", name, args)
 		ret = adapter(context, args)
 	})
 	return

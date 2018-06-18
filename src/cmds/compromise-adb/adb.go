@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/compmain"
 	"github.com/omakoto/go-common/src/fileutils"
@@ -389,6 +390,7 @@ func findJavaTestMethods(file string) []string {
 // Completion for atest-style "Filename#method1,method2,..." arguments.
 func takeJavaFileMethod() compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
+		compdebug.Debugf("takeJavaFileMethod prefix=%s\n", prefix)
 		sharp := strings.Index(prefix, "#")
 		if sharp <= 0 {
 			if fileutils.FileExists(prefix) {
@@ -416,6 +418,7 @@ func takeJavaFileMethod() compromise.CandidateList {
 
 		ret := make([]compromise.Candidate, 0)
 		for _, method := range findJavaTestMethods(file) {
+			compdebug.Debugf("prefix=%s method=%s\n", resultPrefix, method)
 			// Append method names to the result prefix (which is either "filename#" or "filename#method1,method2,")
 			ret = append(ret, compromise.NewCandidateBuilder().Value(resultPrefix+method).Continues(true).Build())
 		}
