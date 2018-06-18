@@ -165,12 +165,12 @@ func (a *zshAdapter) printCandidate(c compromise.Candidate) bool {
 		return false
 	}
 
-	val = a.Escape(val)
+	val = shell.EscapeNoQuotes(val)
 	if !c.Continues() {
 		val += " "
 	}
 	if !c.Raw() {
-		val = a.Escape(val)
+		val = shell.EscapeNoQuotes(val)
 	}
 
 	// -S '' tells zsh not to add a space afterward. (because we do it by ourselves.)

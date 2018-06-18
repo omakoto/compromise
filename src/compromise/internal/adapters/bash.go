@@ -372,14 +372,16 @@ func (a *bashAdapter) printCandidate(c compromise.Candidate) bool {
 		return false
 	}
 
+	val = shell.EscapeNoQuotes(val)
 	if !c.Continues() {
 		val += " "
 	}
+
 	// Output will be eval'ed, so need double-escaping unless it's raw.
 	if c.Raw() {
 		a.out.WriteString(val)
 	} else {
-		a.out.WriteString(a.Escape(val))
+		a.out.WriteString(shell.EscapeNoQuotes(val))
 	}
 	a.out.WriteByte('\n')
 	return true
