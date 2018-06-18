@@ -91,7 +91,7 @@ For the full supported command name list, see [the source code](src/cmds/comprom
 . <(compromise-adb - atest) # Install everything except for the atest completion.  
 ```
 
-### Customization
+## Customization
 
 Some parameters are tunable via environmental variables.
 See [this file](src/compromise/compenv/compenv.go).
