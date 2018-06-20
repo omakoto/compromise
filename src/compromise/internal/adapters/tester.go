@@ -33,8 +33,16 @@ func (a *testerAdapter) HasMenuCompletion() bool {
 	return false
 }
 
-func (a *testerAdapter) SupportsFzf() bool {
+func (a *testerAdapter) UseFzf() bool {
 	return false
+}
+
+func (a *testerAdapter) DefaultMaxCandidates() int {
+	return 10000 // Not used though.
+}
+
+func (a *testerAdapter) DefaultMaxHelps() int {
+	return 0 // Not used though.
 }
 
 func (a *testerAdapter) Escape(arg string) string {

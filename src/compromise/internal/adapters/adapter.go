@@ -17,7 +17,7 @@ const (
 type ShellAdapter interface {
 	Install(targetCommandNames []string, specFile string)
 	HasMenuCompletion() bool
-	SupportsFzf() bool
+	UseFzf() bool
 
 	Escape(arg string) string
 	Unescape(arg string) string
@@ -30,6 +30,9 @@ type ShellAdapter interface {
 
 	EndCompletion()
 	Finish()
+
+	DefaultMaxCandidates() int
+	DefaultMaxHelps() int
 }
 
 func toShellSafeName(commandName string) string {

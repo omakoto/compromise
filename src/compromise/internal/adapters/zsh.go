@@ -123,9 +123,9 @@ func (a *zshAdapter) HasMenuCompletion() bool {
 	return true
 }
 
-// Using FZF will make Zsh hang... But you might be able to find out a work around.
-func (a *zshAdapter) SupportsFzf() bool {
-	return true
+// Whether to use fzf.
+func (a *zshAdapter) UseFzf() bool {
+	return compenv.UseFzf == 1
 }
 
 func (a *zshAdapter) Escape(arg string) string {
@@ -134,6 +134,14 @@ func (a *zshAdapter) Escape(arg string) string {
 
 func (a *zshAdapter) Unescape(arg string) string {
 	return shell.Unescape(arg)
+}
+
+func (a *zshAdapter) DefaultMaxCandidates() int {
+	return 10000
+}
+
+func (a *zshAdapter) DefaultMaxHelps() int {
+	return 0 // We don't use help on zsh
 }
 
 func (a *zshAdapter) GetCommandLine(args []string) *CommandLine {
