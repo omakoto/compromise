@@ -101,7 +101,7 @@ func (e *Engine) Run() {
 	}
 
 	// Maybe try FZF.
-	if e.adapter.SupportsFzf() && compenv.UseFzf && compstore.Load().IsDoublePress {
+	if e.adapter.UseFzf() && compstore.Load().IsDoublePress {
 		compdebug.Debug("Trying fzf\n")
 		fzf := selectors.NewFzfSelector()
 		selected, err := fzf.Select(e.commandLine.WordAtCursor(0), e.candidates)

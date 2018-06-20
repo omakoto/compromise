@@ -45,7 +45,11 @@ var (
 	BellStyle = os.Getenv("COMPROMISE_BELL_STYPE")
 
 	// (Bash only) show this many candidates initially. Double tab TAB to see more candidates.
-	FirstMaxCandidates = utils.ParseInt(os.Getenv("COMPROMISE_FIRST_MAX_CANDIDATES"), 10, 40)
+	FirstMaxCandidatesNoFzf = utils.ParseInt(os.Getenv("COMPROMISE_FIRST_MAX_CANDIDATES"), 10, 2000)
+
+	// (Bash only) show this many candidates initially. Double tab TAB to see more candidates.
+	// When FZF is enabled, this value is used instead of COMPROMISE_FIRST_MAX_CANDIDATES.
+	FirstMaxCandidatesWithFzf = utils.ParseInt(os.Getenv("COMPROMISE_FIRST_MAX_CANDIDATES_FZF"), 10, 50)
 
 	// At most show this many candidates.
 	MaxCandidates = utils.ParseInt(os.Getenv("COMPROMISE_MAX_CANDIDATES"), 10, 2000)
@@ -54,10 +58,10 @@ var (
 	Home = os.Getenv("HOME")
 
 	// Persistent storage filename.
-	DoublePressTimeout = time.Duration(utils.ParseInt(os.Getenv("COMPROMISE_DOUBLE_PRESS_TIMEOUT_MS"), 10, 500)) * time.Millisecond
+	DoublePressTimeout = time.Duration(utils.ParseInt(os.Getenv("COMPROMISE_DOUBLE_PRESS_TIMEOUT_MS"), 10, 700)) * time.Millisecond
 
 	// On bash, show help for at most this many candidates.
-	BashHelpMaxCandidates = utils.ParseInt(os.Getenv("COMPROMISE_BASH_HELP_MAX"), 10, 20)
+	BashHelpMaxCandidates = utils.ParseInt(os.Getenv("COMPROMISE_BASH_HELP_MAX"), 10, 40)
 
 	// On bash, do not execute bind commands
 	BashSkipBind = getBoolEnv("COMPROMISE_BASH_SKIP_BINDS", false)
@@ -82,8 +86,8 @@ var (
 	// Where spec files are stored.
 	SpecPath = path.Join(CompDir, "spec")
 
-	// Whether to use fzf or not
-	UseFzf = getBoolEnv("COMPROMISE_USE_FZF", false)
+	// Whether to use fzf or not. 0: Don't use fzf. 1) Always use fzf. 2 (default): Use fzf on Bash but not on Zsh.
+	UseFzf = utils.ParseInt(os.Getenv("COMPROMISE_USE_FZF"), 10, 2)
 
 	// Filename of the FZF executable.
 	FzfBinName = utils.FirstNonEmpty(os.Getenv("COMPROMISE_FZF_BIN"), "fzf")

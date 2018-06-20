@@ -152,9 +152,9 @@ func (a *bashAdapter) HasMenuCompletion() bool {
 	return false
 }
 
-// SupportsFzf returns true; Bash works well with FZF.
-func (a *bashAdapter) SupportsFzf() bool {
-	return true
+// Whether to use fzf.
+func (a *bashAdapter) UseFzf() bool {
+	return compenv.UseFzf > 0
 }
 
 // Escape is a shell escape function for bash.
@@ -387,6 +387,17 @@ func (a *bashAdapter) printCandidate(c compromise.Candidate) bool {
 	return true
 }
 
+func (a *bashAdapter) DefaultMaxCandidates() int {
+	if a.UseFzf() {
+		return compenv.FirstMaxCandidatesWithFzf
+	}
+	return compenv.FirstMaxCandidatesNoFzf
+}
+
+func (a *bashAdapter) DefaultMaxHelps() int {
+	return compenv.BashHelpMaxCandidates
+}
+
 func (a *bashAdapter) EndCompletion() {
 	// Show candidates on stdout for eval by bash.
 
@@ -398,7 +409,7 @@ func (a *bashAdapter) EndCompletion() {
 		if c.Matches(a.commandLine.WordAtCursor(0)) && a.printCandidate(c) {
 			candCount++
 			if !store.IsDoublePress {
-				if candCount >= compenv.FirstMaxCandidates {
+				if candCount >= a.DefaultMaxCandidates() {
 					break
 				}
 			} else {
@@ -426,7 +437,7 @@ func (a *bashAdapter) EndCompletion() {
 			AddDisplayString(c, buf)
 			buf.WriteString("\n")
 
-			if !store.IsDoublePress && helpCount >= compenv.BashHelpMaxCandidates {
+			if !store.IsDoublePress && helpCount >= a.DefaultMaxHelps() {
 				omitted = true
 				break
 			}
