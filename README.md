@@ -55,11 +55,8 @@ go get -v -u github.com/junegunn/fzf
 . <(compromise-adb) # Install ADB / fastboot / atest / m* completion
 . <(compromise-go)  # Install Go completion
 
-# If you get "command not found", you don't have PATH set up to the go/bin directory.
-# Fix your PATH (and maybe also GOPATH).
-# Or, maybe try the following instead?
-# . <("$(go env GOPATH | sed -e 's/:.*$//')"/bin/compromise-adb)
-# . <("$(go env GOPATH | sed -e 's/:.*$//')"/bin/compromise-go)
+# If you get "command not found", add ~/go/bin/ to your PATH, which is the default install
+# location.
 
 ```
  
