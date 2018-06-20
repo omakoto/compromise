@@ -29,17 +29,15 @@ Currently it comes with the following two sets of completions:
 
 ### Enabling Interactive Item Selection with [fzf](https://github.com/junegunn/fzf) on Bash (and maybe on Zsh too)
 
-If [fzf](https://github.com/junegunn/fzf) is installed, Compromise can invoke it to let you
-interactively search for a candidate.
+If [fzf](https://github.com/junegunn/fzf) is installed, Compromise can invoke it
+to let you interactively search for a candidate (which is the default behavior on Bash).
 
- - To enable it, add the following line to your `~/.bashrc`.
-```bash
-export COMPROMISE_USE_FZF=1 
-```
- - Then press `[TAB]` twice to invoke fzf. (e.g. try `adb[SPACE][TAB][TAB]`)
+Try pressing `[TAB]` twice to invoke fzf. (e.g. try `adb[SPACE][TAB][TAB]`)
 
-This also seems to work on Zsh too, but Zsh won't redraw the current line afterwords,
-so it's a bit awkward. (For now, just refresh the command line by pressing `[ALT]+[Shift]+R`)
+ - If you want to disable it, add `export COMPROMISE_USE_FZF=0` to your `~/.bashrc`.
+ - You can enable it on Zsh too by adding `export COMPROMISE_USE_FZF=1` to your `~/.zshrc`,
+   but Zsh won't redraw the current line after fzf finishes, so it's a bit awkward.
+   (For now, just refresh the command line by pressing `[ALT]+[Shift]+R`)
  
   
 ## Installing ADB and/or Go Completion
