@@ -9,4 +9,4 @@ install:
 before_script:
   # - go vet ./...
 script:
- - ./scripts/presubmit.sh
+ - ./scripts/presubmit.sh #presubmit
