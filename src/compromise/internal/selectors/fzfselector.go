@@ -6,11 +6,14 @@ import (
 	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/internal/adapters"
+	"github.com/omakoto/go-common/src/common"
+	"github.com/omakoto/go-common/src/fileutils"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/pkg/errors"
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -40,19 +43,37 @@ func (s *fzfSelector) Select(prefix string, candidates []compromise.Candidate) (
 	}
 
 	// Start FZF.
-	cmd := exec.Command(compenv.FzfBinName, opts...)
-	cmd.Stderr = os.Stderr
-	wr, err := cmd.StdinPipe()
-	if err != nil {
-		return nil, errors.Wrap(err, "StdinPipe failed")
+	starter := func(path string) (*exec.Cmd, io.WriteCloser, io.Reader, error) {
+		compdebug.Debugf("Starting fzf at %s...", path)
+		cmd := exec.Command(path, opts...)
+		cmd.Stderr = os.Stderr
+		wr, err := cmd.StdinPipe()
+		if err != nil {
+			return nil, nil, nil, errors.Wrap(err, "StdinPipe failed")
+		}
+		rd, err := cmd.StdoutPipe()
+		if err != nil {
+			return nil, nil, nil, errors.Wrap(err, "StdoutPipe failed")
+		}
+		err = cmd.Start()
+		if err != nil {
+			return nil, nil, nil, errors.Wrap(err, "Start failed")
+		}
+		return cmd, wr, rd, nil
 	}
-	rd, err := cmd.StdoutPipe()
+
+	cmd, wr, rd, err := starter(compenv.FzfBinName)
 	if err != nil {
-		return nil, errors.Wrap(err, "StdoutPipe failed")
-	}
-	err = cmd.Start()
-	if err != nil {
-		return nil, errors.Wrap(err, "Start failed")
+		compdebug.Warnf("Unable to start fzf: %s", err)
+
+		alt := filepath.Join(filepath.Dir(common.MustGetExecutable()), "fzf")
+		if fileutils.FileExists(alt) {
+			cmd, wr, rd, err = starter(alt)
+		}
+		if err != nil {
+			compdebug.Warnf("Unable to start fzf: %s", err)
+			return nil, err
+		}
 	}
 
 	// Pass data to FZF.
@@ -66,7 +87,7 @@ func (s *fzfSelector) Select(prefix string, candidates []compromise.Candidate) (
 	bwr.Flush()
 	wr.Close()
 
-	compdebug.Debugf("%d candidates passed to FZF")
+	compdebug.Debugf("%d candidates passed to FZF", len(candidates))
 
 	defer func() {
 		cmd.Wait()
