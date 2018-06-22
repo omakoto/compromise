@@ -15,7 +15,7 @@ const (
 )
 
 type ShellAdapter interface {
-	Install(targetCommandNames []string, specFile string)
+	Install(targetCommandNames []string, spec string)
 	HasMenuCompletion() bool
 	UseFzf() bool
 

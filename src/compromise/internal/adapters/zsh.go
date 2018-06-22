@@ -49,7 +49,7 @@ type zshParameters struct {
 	FuncName       string
 	ExecutableName string
 	CommandNames   []string
-	SpecFile       string
+	Spec           string
 	SkipZshBind    string
 
 	EvalStr string
@@ -63,14 +63,14 @@ func (p *zshParameters) Unescape(arg string) string {
 	return shell.Unescape(arg)
 }
 
-func (a *zshAdapter) Install(targetCommandNames []string, specFile string) {
+func (a *zshAdapter) Install(targetCommandNames []string, spec string) {
 	p := zshParameters{}
 	p.FuncName = getFuncName(targetCommandNames[0])
 	path, err := filepath.Abs(common.MustGetExecutable())
 	common.Checkf(err, "Abs failed")
 	p.ExecutableName = path
 	p.CommandNames = targetCommandNames
-	p.SpecFile = specFile
+	p.Spec = spec
 	p.SkipZshBind = "0"
 	if compenv.ZshSkipBind {
 		p.SkipZshBind = "1"
@@ -79,7 +79,7 @@ func (a *zshAdapter) Install(targetCommandNames []string, specFile string) {
 	command := []string{
 		shell.Escape(p.ExecutableName),
 		"--" + InvokeOption,
-		shell.Escape(p.SpecFile),
+		"<(" + p.FuncName + "_spec)",
 		`"$(( $CURRENT - 1 ))"`,
 		`"${words[@]}"`,
 	}
@@ -91,8 +91,14 @@ func (a *zshAdapter) Install(targetCommandNames []string, specFile string) {
 if ! type compdef >&/dev/null ; then
   echo "compromise: 'compdef' not defined. Please perform minimum Zsh setup first." 1>&2  
 else
+  function {{.FuncName}}_spec() {
+    cat <<'@@__COMPROMISE_SPEC_END__@@'
+{{.Spec}}
+@@__COMPROMISE_SPEC_END__@@
+  }
+
   # Completion function.
-  function {{.FuncName}} {
+  function {{.FuncName}}() {
     eval "$( {{- .EvalStr -}} )"
 	
 	# Note we want to redraw the current line here, in case we did fzf. But how?
