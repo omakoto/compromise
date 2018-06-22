@@ -134,8 +134,7 @@ func PrintInstallScriptRaw(spec string, opts InstallOptions, commandsOverride ..
 		adapter := adapters.GetShellAdapter(opts.In, opts.Out)
 		defer adapter.Finish()
 
-		specFile := adapters.SaveSpec(commands[0], spec)
-		adapter.Install(commands, specFile)
+		adapter.Install(commands, spec)
 	})
 }
 

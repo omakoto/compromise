@@ -83,9 +83,6 @@ var (
 	// Timeout for the cache.
 	CacheTimeout = time.Duration(utils.ParseInt(os.Getenv("COMPROMISE_CACHE_TIMEOUT_MS"), 10, 1000)) * time.Millisecond
 
-	// Where spec files are stored.
-	SpecPath = path.Join(CompDir, "spec")
-
 	// Whether to use fzf or not. 0: Don't use fzf. 1) Always use fzf. 2 (default): Use fzf on Bash but not on Zsh.
 	UseFzf = utils.ParseInt(os.Getenv("COMPROMISE_USE_FZF"), 10, 2)
 
