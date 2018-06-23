@@ -449,6 +449,12 @@ func (a *bashAdapter) EndCompletion() {
 			}
 		}
 		if omitted {
+			// When candidates are omitted, it's possible that all printed candidates have
+			// a common prefix, and bash fills it in, even when there are omitted candidates
+			// that don't have the prefix.
+			// So add an empty candidate to prevent that.
+			a.out.WriteString("''\n")
+
 			buf.WriteString("\n")
 			if compenv.UseColor {
 				buf.WriteString("\x1b[34;1m")
