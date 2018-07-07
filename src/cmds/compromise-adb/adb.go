@@ -359,7 +359,12 @@ func takeDeviceComponentInner(fetcher func(string) []string) compromise.Candidat
 		p := strings.Index(prefix, "/")
 		if p < 0 {
 			// "/" not found, just return package names.
-			return takeDevicePackage().GetCandidate(prefix)
+			packages := takeDevicePackage().GetCandidate(prefix)
+			for _, p := range packages {
+				p.SetValue(p.Value() + "/")
+				p.SetContinues(true)
+			}
+			return packages
 		} else if p == 0 {
 			return nil
 		}
