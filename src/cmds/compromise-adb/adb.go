@@ -103,7 +103,7 @@ func takeDeviceFile(ctx compromise.CompleteContext) compromise.CandidateList {
 
 // Generate on-device command lists.
 func takeDeviceCommand(ctx compromise.CompleteContext) compromise.CandidateList {
-	return compfunc.BuildCandidateListFromCommandWithBuilder(adb()+` shell 'for n in ${PATH//:/ } ; do ls -1 "$n" ; done 2>/dev/null' || true`,
+	return compfunc.BuildCandidateListFromCommandWithBuilder(adb()+` shell 'for n in ${PATH//:/ } ; do ls -1 "$n" ; done 2>/dev/null' | sort -u || true`,
 		func(line int, s string, c compromise.Candidate) {
 			c.SetValue(s)
 		})
@@ -442,6 +442,7 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() +
 @command adb
 @command fastboot :fastboot
 @command atest :atest
+@command ashell :ashell
 @command am :am
 @command pm :pm
 @command settings :settings
@@ -461,7 +462,6 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() +
 @command mmma :mmm
 
 @command runahat    :runahat
-@command stacktrace :stacktrace
 @command stacks     :stacktrace
 
 @switchloop "^-"
@@ -628,6 +628,10 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() +
 			offline		   # reset offline/unauthorized devices to force reconnect
 
 	shell		# run remote shell command (interactive shell if no command given)
+		@call :ashell
+@finish
+
+@label :ashell
 		@switchloop "^-"
 			-e		# <CHAR> choose escape character, or "none"; default '~'
 				// Can't add "none" as a @switch-candidate, because it'll always be selected.
@@ -665,7 +669,6 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() +
 				@call :killall
 			@cand takeDeviceCommand
 
-@finish
 
 @label :install-options
 	@switchloop "^-"

@@ -3,6 +3,7 @@ package compfunc
 import (
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compdebug"
+	"github.com/omakoto/compromise/src/compromise/comptest"
 	"github.com/omakoto/go-common/src/utils"
 	"github.com/ungerik/go-dry"
 	"io/ioutil"
@@ -31,11 +32,6 @@ func TakeDir() compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
 		return fileCompFunc(prefix, "", false, nil)
 	})
-}
-
-func IsEmptyDir(path string) bool {
-	files, _ := ioutil.ReadDir(path + "/")
-	return len(files) == 0
 }
 
 func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool, mapper func(builder compromise.Candidate)) []compromise.Candidate {
@@ -72,7 +68,7 @@ func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool, mapper fu
 		compdebug.Debug("      [prefix match]\n")
 
 		if isDir {
-			ret = append(ret, conv(compromise.NewCandidate().SetValue(relPath+"/").SetContinues(!IsEmptyDir(relPath))))
+			ret = append(ret, conv(compromise.NewCandidate().SetValue(relPath+"/").SetContinues(!comptest.IsEmptyDir(relPath))))
 			continue
 		}
 		if includeFiles && len(filenameRegexp.FindStringIndex(baseName)) > 0 {

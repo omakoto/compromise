@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compdebug"
-	"github.com/omakoto/go-common/src/common"
+	"github.com/omakoto/compromise/src/compromise/comptest"
 	"io/ioutil"
-	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -96,19 +94,6 @@ func StringsToCandidates(vals []string, mapFunc func(line int, s string, c compr
 	return ret
 }
 
-func ExecAndGetStdout(command string) ([]byte, error) {
-	compdebug.Debugf("Executing: %q\n", command)
-
-	cmd := exec.Command("/bin/sh", "-c", command)
-	cmd.Stderr = os.Stderr
-	output, err := cmd.Output()
-
-	if err != nil {
-		common.Warnf("Command execution error: command=%q error=%s", command, err)
-	}
-	return output, err
-}
-
 func AnyWithHelp(help string) compromise.Candidate {
 	return compromise.NewCandidate().SetForce(true).SetHelp(help)
 }
@@ -119,4 +104,8 @@ func TakeAny(help string) compromise.CandidateList {
 
 func TakeInteger() compromise.CandidateList {
 	return compromise.NewCandidate().SetForce(true).SetHelp("INTEGER")
+}
+
+func ExecAndGetStdout(command string) ([]byte, error) {
+	return comptest.ExecAndGetStdout(command)
 }
