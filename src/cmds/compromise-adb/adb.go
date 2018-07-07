@@ -358,6 +358,7 @@ func takeDeviceComponentInner(fetcher func(string) []string) compromise.Candidat
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
 		p := strings.Index(prefix, "/")
 		if p < 0 {
+			// "/" not found, just return package names.
 			return takeDevicePackage().GetCandidate(prefix)
 		} else if p == 0 {
 			return nil
@@ -643,6 +644,10 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() +
 				@call :pm
 			settings	# SettingsProvider command
 				@call :settings
+
+			dpm		# Device policy manager command
+				@call :dpm
+
 			logcat	# show device log
 				@call :logcat
 
@@ -968,6 +973,16 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() +
 	@switch
 		global|system|secure
 			@go_call setSettingsNamespace
+
+@label :dpm
+	@switch
+		set-active-admin
+		set-device-owner 
+		set-profile-owner
+		remove-active-admin
+	@call :take_user_id
+	@cand takeDeviceReceiver
+
 
 @label :requestsync
 
