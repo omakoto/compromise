@@ -286,11 +286,11 @@ func (n *Node) Help() *Token {
 	return n.help
 }
 
-func (n *Node) SetHelp(b *compromise.CandidateBuilder) *compromise.CandidateBuilder {
-	if n.Help() != nil {
-		b.Help(n.help.Word)
+func (n *Node) HelpText() string {
+	if n.help != nil {
+		return n.help.Word
 	}
-	return b
+	return ""
 }
 
 func (n *Node) UpdateLastVisitedWordIndex(index int) {
@@ -303,20 +303,20 @@ func (n *Node) UpdateLastVisitedWordIndex(index int) {
 func (n *Node) AsCandidates() []compromise.Candidate {
 	switch n.nodeType {
 	case NodeAny:
-		b := compromise.NewCandidateBuilder()
-		return []compromise.Candidate{n.SetHelp(b).Force(true).Build()}
+		c := compromise.NewCandidate()
+		return []compromise.Candidate{c.SetHelp(n.HelpText()).SetForce(true)}
 	case NodeLiteral:
 		raw := n.Literal().RawWord
 		if strings.HasPrefix(raw, "\"") || !strings.ContainsRune(raw, '|') {
 			// Escaped word, or contains no special character. Just create a candidate.
-			b := compromise.NewCandidateBuilder().Value(n.Literal().Word)
-			return []compromise.Candidate{n.SetHelp(b).Build()}
+			c := compromise.NewCandidate().SetValue(n.Literal().Word)
+			return []compromise.Candidate{c.SetHelp(n.HelpText())}
 		}
 		fields := strings.Split(n.Literal().Word, "|")
 		ret := make([]compromise.Candidate, 0, len(fields))
 		for _, t := range fields {
-			b := compromise.NewCandidateBuilder().Value(strings.Trim(t, " \t\r\n"))
-			ret = append(ret, n.SetHelp(b).Build())
+			c := compromise.NewCandidate().SetValue(strings.Trim(t, " \t\r\n"))
+			ret = append(ret, c.SetHelp(n.HelpText()))
 		}
 		return ret
 	default:

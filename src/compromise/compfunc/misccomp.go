@@ -42,7 +42,7 @@ func ReadCandidateListFromFile(filename string) compromise.CandidateList {
 		for _, line := range ReadLinesFromFile(filename) {
 			line = strings.Trim(line, " \t\r")
 			if len(line) > 0 && line[0] != '#' {
-				ret = append(ret, compromise.NewCandidateBuilder().Value(string(line)).Build())
+				ret = append(ret, compromise.NewCandidate().SetValue(string(line)))
 			}
 		}
 		return ret
@@ -58,21 +58,21 @@ func BuildCandidateListFromCommand(command string) compromise.CandidateList {
 // BuildCandidateListFromCommandWithMap executes a command wih /bin/sh and build a CandidateList from the output,
 // using each line as a single Candidate. If mapFunc is given, it'll be applied to each line.
 func BuildCandidateListFromCommandWithMap(command string, mapFunc func(line int, s string) string) compromise.CandidateList {
-	return BuildCandidateListFromCommandWithBuilder(command, func(line int, s string, b *compromise.CandidateBuilder) {
+	return BuildCandidateListFromCommandWithBuilder(command, func(line int, s string, c compromise.Candidate) {
 		s = mapFunc(line, s)
 		if len(s) > 0 {
-			b.Value(s)
+			c.SetValue(s)
 		}
 	})
 }
 
 // BuildCandidateListFromCommandWithBuilder executes a command wih /bin/sh and build a CandidateList from the output,
 // converting using each line into a single Candidate with mapFunc.
-func BuildCandidateListFromCommandWithBuilder(command string, mapFunc func(line int, s string, b *compromise.CandidateBuilder)) compromise.CandidateList {
+func BuildCandidateListFromCommandWithBuilder(command string, mapFunc func(line int, s string, c compromise.Candidate)) compromise.CandidateList {
 	return compromise.LazyCandidates(func(_ string) []compromise.Candidate {
 		if mapFunc == nil {
-			mapFunc = func(line int, s string, b *compromise.CandidateBuilder) {
-				b.Value(s)
+			mapFunc = func(line int, s string, c compromise.Candidate) {
+				c.SetValue(s)
 			}
 		}
 		output, _ := ExecAndGetStdout(command)
@@ -81,15 +81,14 @@ func BuildCandidateListFromCommandWithBuilder(command string, mapFunc func(line 
 	})
 }
 
-func StringsToCandidates(vals []string, mapFunc func(line int, s string, b *compromise.CandidateBuilder)) []compromise.Candidate {
+func StringsToCandidates(vals []string, mapFunc func(line int, s string, c compromise.Candidate)) []compromise.Candidate {
 	ret := make([]compromise.Candidate, 0)
 
 	for i, v := range vals {
 		compdebug.Debugf(" ->%q\n", v)
 
-		b := compromise.NewCandidateBuilder()
-		mapFunc(i, v, b)
-		c := b.Build()
+		c := compromise.NewCandidate()
+		mapFunc(i, v, c)
 		if len(c.Value()) > 0 {
 			ret = append(ret, c)
 		}
@@ -111,7 +110,7 @@ func ExecAndGetStdout(command string) ([]byte, error) {
 }
 
 func AnyWithHelp(help string) compromise.Candidate {
-	return compromise.NewCandidateBuilder().Force(true).Help(help).Build()
+	return compromise.NewCandidate().SetForce(true).SetHelp(help)
 }
 
 func TakeAny(help string) compromise.CandidateList {
@@ -119,5 +118,5 @@ func TakeAny(help string) compromise.CandidateList {
 }
 
 func TakeInteger() compromise.CandidateList {
-	return compromise.NewCandidateBuilder().Force(true).Help("INTEGER").Build()
+	return compromise.NewCandidate().SetForce(true).SetHelp("INTEGER")
 }

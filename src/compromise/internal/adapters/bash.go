@@ -317,7 +317,7 @@ func (a *bashAdapter) MaybeOverrideCandidates(commandLine *CommandLine) []compro
 				// Do a variable name expansion. e.g. $PAT -> $PATH
 				for key := range a.variables {
 					if compromise.StringMatches(key, m[1]) {
-						ret = append(ret, compromise.NewCandidateBuilder().Value("$"+key).Continues(true).Force(true).Build())
+						ret = append(ret, compromise.NewCandidate().SetValue("$"+key).SetContinues(true).SetForce(true))
 					}
 				}
 			} else {
@@ -326,7 +326,7 @@ func (a *bashAdapter) MaybeOverrideCandidates(commandLine *CommandLine) []compro
 				name := m[1]
 				if val, ok := a.variables[name]; ok && fileutils.DirExists(val) {
 					rest := shell.Unescape(raw[len(m[0]):])
-					c := compromise.NewCandidateBuilder().Value(val + "/" + rest).Continues(true).Force(true).Build()
+					c := compromise.NewCandidate().SetValue(val + "/" + rest).SetContinues(true).SetForce(true)
 					ret = append(ret, c)
 				}
 			}
@@ -434,7 +434,7 @@ func (a *bashAdapter) EndCompletion() {
 
 		helpCount := 0
 		for _, c := range a.candidates {
-			if !c.NeedsHelp() || len(c.Help()) == 0 {
+			if len(c.Help()) == 0 {
 				continue
 			}
 			helpCount++

@@ -15,7 +15,7 @@ func takeLunch() compromise.CandidateList {
 		var ret []compromise.Candidate
 		for _, dev := range compfunc.ReadLinesFromFile(".android-devices") {
 			for _, flavor := range []string{"eng", "userdebug"} {
-				ret = append(ret, compromise.NewCandidateBuilder().Value(dev+"-"+flavor).Build())
+				ret = append(ret, compromise.NewCandidate().SetValue(dev+"-"+flavor))
 			}
 		}
 		return ret

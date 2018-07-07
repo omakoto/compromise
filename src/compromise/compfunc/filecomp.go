@@ -21,7 +21,7 @@ func TakeFile(reFilenameMatcher string) compromise.CandidateList {
 	})
 }
 
-func TakeFileWithMapper(reFilenameMatcher string, mapper func(builder *compromise.CandidateBuilder)) compromise.CandidateList {
+func TakeFileWithMapper(reFilenameMatcher string, mapper func(builder compromise.Candidate)) compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
 		return fileCompFunc(prefix, reFilenameMatcher, true, mapper)
 	})
@@ -38,7 +38,7 @@ func IsEmptyDir(path string) bool {
 	return len(files) == 0
 }
 
-func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool, mapper func(builder *compromise.CandidateBuilder)) []compromise.Candidate {
+func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool, mapper func(builder compromise.Candidate)) []compromise.Candidate {
 	prefixDir, prefixFile := path.Split(prefix)
 	filenameRegexp := regexp.MustCompile(reFilenameMatcher)
 
@@ -50,7 +50,7 @@ func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool, mapper fu
 		return nil
 	}
 
-	conv := func(b *compromise.CandidateBuilder) *compromise.CandidateBuilder {
+	conv := func(b compromise.Candidate) compromise.Candidate {
 		if mapper != nil {
 			mapper(b)
 		}
@@ -72,11 +72,11 @@ func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool, mapper fu
 		compdebug.Debug("      [prefix match]\n")
 
 		if isDir {
-			ret = append(ret, conv(compromise.NewCandidateBuilder().Value(relPath+"/").Continues(!IsEmptyDir(relPath)).NeedsHelp(false)).Build())
+			ret = append(ret, conv(compromise.NewCandidate().SetValue(relPath+"/").SetContinues(!IsEmptyDir(relPath))))
 			continue
 		}
 		if includeFiles && len(filenameRegexp.FindStringIndex(baseName)) > 0 {
-			ret = append(ret, conv(compromise.NewCandidateBuilder().Value(relPath).NeedsHelp(false)).Build())
+			ret = append(ret, conv(compromise.NewCandidate().SetValue(relPath)))
 		}
 	}
 	compdebug.Dump("Filecopletion result=", ret)

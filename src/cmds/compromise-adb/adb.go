@@ -96,16 +96,16 @@ func takePermission() compromise.CandidateList {
 func takeDeviceFile(ctx compromise.CompleteContext) compromise.CandidateList {
 	tok := ctx.WordAtCursor(0)
 	return compfunc.BuildCandidateListFromCommandWithBuilder(adb()+` shell "ls -pd1 `+shell.Escape(tok)+`* 2>/dev/null || true"`,
-		func(line int, s string, b *compromise.CandidateBuilder) {
-			b.Value(s).Continues(true) // Continues(true) suppresses a space after a candidate.
+		func(line int, s string, c compromise.Candidate) {
+			c.SetValue(s).SetContinues(true) // Continues(true) suppresses a space after a candidate.
 		})
 }
 
 // Generate on-device command lists.
 func takeDeviceCommand(ctx compromise.CompleteContext) compromise.CandidateList {
 	return compfunc.BuildCandidateListFromCommandWithBuilder(adb()+` shell 'for n in ${PATH//:/ } ; do ls -1 "$n" ; done 2>/dev/null' || true`,
-		func(line int, s string, b *compromise.CandidateBuilder) {
-			b.Value(s)
+		func(line int, s string, c compromise.Candidate) {
+			c.SetValue(s)
 		})
 }
 
@@ -154,13 +154,13 @@ func takeUserID() compromise.CandidateList {
 }
 
 func takePid() compromise.CandidateList {
-	return compfunc.BuildCandidateListFromCommandWithBuilder(adb()+" shell ps -o PID,NAME", func(line int, s string, builder *compromise.CandidateBuilder) {
+	return compfunc.BuildCandidateListFromCommandWithBuilder(adb()+" shell ps -o PID,NAME", func(line int, s string, c compromise.Candidate) {
 		if line == 0 {
 			return
 		}
 		fields := strings.Fields(strings.Trim(s, " \t\r"))
-		builder.Value(compfunc.GetField(fields, 0))
-		builder.Help(compfunc.GetField(fields, 1))
+		c.SetValue(compfunc.GetField(fields, 0))
+		c.SetHelp(compfunc.GetField(fields, 1))
 	})
 }
 
@@ -180,11 +180,11 @@ func takeLogcatFilter() compromise.CandidateList {
 		ret := make([]compromise.Candidate, 0)
 		if strings.HasSuffix(prefix, ":") {
 			for _, p := range "VDIWEFS" {
-				ret = append(ret, compromise.NewCandidateBuilder().Value(prefix+string(p)).Build())
+				ret = append(ret, compromise.NewCandidate().SetValue(prefix+string(p)))
 			}
 		} else if strings.ContainsRune(prefix, ':') {
 			// If the current word already contains a colon, then it's complete.
-			ret = append(ret, compromise.NewCandidateBuilder().Value(prefix).Build())
+			ret = append(ret, compromise.NewCandidate().SetValue(prefix))
 		} else {
 			// Otherwise, nothing to suggest but show a help.
 			ret = append(ret, compfunc.AnyWithHelp("<log component>[:proirity, any of V D I W E F S]"))
@@ -204,7 +204,7 @@ func takeBuildModuleReal() compromise.CandidateList {
 		}
 		ret := make([]compromise.Candidate, 0)
 		for k := range data {
-			ret = append(ret, compromise.NewCandidateBuilder().Value(k).Build())
+			ret = append(ret, compromise.NewCandidate().SetValue(k))
 		}
 		return ret
 	})
@@ -242,7 +242,7 @@ func takeBuildModule(args []string) compromise.CandidateList {
 			}
 			name := line[:p]
 			if re == nil || re.FindStringIndex(name) != nil {
-				ret = append(ret, compromise.NewCandidateBuilder().Value(name).Build())
+				ret = append(ret, compromise.NewCandidate().SetValue(name))
 			}
 		}
 		return ret
@@ -363,8 +363,8 @@ func takeDeviceComponentInner(fetcher func(string) []string) compromise.Candidat
 		} else if p == 0 {
 			return nil
 		}
-		return compfunc.StringsToCandidates(fetcher(prefix[0:p]), func(line int, s string, b *compromise.CandidateBuilder) {
-			b.Value(s)
+		return compfunc.StringsToCandidates(fetcher(prefix[0:p]), func(line int, s string, c compromise.Candidate) {
+			c.SetValue(s)
 		})
 	})
 }
@@ -396,11 +396,11 @@ func takeJavaFileMethod() compromise.CandidateList {
 		if sharp <= 0 {
 			if fileutils.FileExists(prefix) {
 				// Argument is a filename. Return [filename] + "#".
-				return compromise.StrictCandidates(compromise.NewCandidateBuilder().Value(prefix + "#").Force(true).Continues(true).Build()).GetCandidate("")
+				return compromise.StrictCandidates(compromise.NewCandidate().SetValue(prefix + "#").SetForce(true).SetContinues(true)).GetCandidate("")
 			}
 			// Doesn't contain a "#", so just do a file completion, but don't append " " after a filename.
-			return compfunc.TakeFileWithMapper(`\.java$`, func(b *compromise.CandidateBuilder) {
-				b.Continues(true)
+			return compfunc.TakeFileWithMapper(`\.java$`, func(c compromise.Candidate) {
+				c.SetContinues(true)
 			}).GetCandidate(prefix)
 		}
 
@@ -421,7 +421,7 @@ func takeJavaFileMethod() compromise.CandidateList {
 		for _, method := range findJavaTestMethods(file) {
 			compdebug.Debugf("prefix=%s method=%s\n", resultPrefix, method)
 			// Append method names to the result prefix (which is either "filename#" or "filename#method1,method2,")
-			ret = append(ret, compromise.NewCandidateBuilder().Value(resultPrefix+method).Continues(true).Build())
+			ret = append(ret, compromise.NewCandidate().SetValue(resultPrefix+method).SetContinues(true))
 		}
 		return ret
 	})

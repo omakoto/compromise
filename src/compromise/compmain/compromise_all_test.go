@@ -25,7 +25,7 @@ func takeLazily(args []string) compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
 		ret := make([]compromise.Candidate, 0)
 		for _, a := range args {
-			ret = append(ret, compromise.NewCandidateBuilder().Value(a).Build())
+			ret = append(ret, compromise.NewCandidate().SetValue(a))
 		}
 		return ret
 	})
@@ -34,14 +34,14 @@ func takeLazily(args []string) compromise.CandidateList {
 func takeStatically(args []string) compromise.CandidateList {
 	ret := make([]compromise.Candidate, 0)
 	for _, a := range args {
-		ret = append(ret, compromise.NewCandidateBuilder().Value(a).Build())
+		ret = append(ret, compromise.NewCandidate().SetValue(a))
 	}
 	return compromise.StrictCandidates(ret...)
 }
 
 func takeHeldValue() compromise.CandidateList {
 	ret := make([]compromise.Candidate, 0)
-	ret = append(ret, compromise.NewCandidateBuilder().Value(stringHolder).Build())
+	ret = append(ret, compromise.NewCandidate().SetValue(stringHolder))
 	return compromise.StrictCandidates(ret...)
 }
 

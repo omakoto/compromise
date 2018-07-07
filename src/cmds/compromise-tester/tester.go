@@ -14,11 +14,11 @@ func takeOne() compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
 		ret := make([]compromise.Candidate, 0)
 
-		ret = append(ret, compromise.NewCandidateBuilder().Value("cooked").Raw(false).Build())
-		ret = append(ret, compromise.NewCandidateBuilder().Value("raw").Raw(true).Build())
+		ret = append(ret, compromise.NewCandidate().SetValue("cooked").SetRaw(false))
+		ret = append(ret, compromise.NewCandidate().SetValue("raw").SetRaw(true))
 
-		ret = append(ret, compromise.NewCandidateBuilder().Value("cooked#test").Raw(false).Build())
-		ret = append(ret, compromise.NewCandidateBuilder().Value("raw#test").Raw(true).Build())
+		ret = append(ret, compromise.NewCandidate().SetValue("cooked#test").SetRaw(false))
+		ret = append(ret, compromise.NewCandidate().SetValue("raw#test").SetRaw(true))
 
 		return ret
 	})

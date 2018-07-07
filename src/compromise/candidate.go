@@ -30,13 +30,16 @@ type Candidate interface {
 	// Help returns a help string for a candidate.
 	Help() string
 
-	// Whether it needs to be shown in the help section or not
-	// TODO Do we really need it?
-	NeedsHelp() bool
-
 	Serialize(wr *bufio.Writer)
 
 	Deserialize(rd *bufio.Reader) error
+
+	SetValue(value string) Candidate
+	SetRaw(raw bool) Candidate
+	SetHidden(hidden bool) Candidate
+	SetContinues(continues bool) Candidate
+	SetForce(force bool) Candidate
+	SetHelp(help string) Candidate
 }
 
 type candidate struct {
@@ -46,7 +49,6 @@ type candidate struct {
 	continues bool
 	force     bool
 	help      string
-	needsHelp bool
 }
 
 var _ Candidate = (*candidate)(nil)
@@ -59,8 +61,11 @@ const (
 	continues
 	force
 	help
-	needsHelp
 )
+
+func NewCandidate() Candidate {
+	return &candidate{}
+}
 
 func (c *candidate) String() string {
 	return fmt.Sprintf("value=%q, raw=%v, continues=%v, hidden=%v, force=%v, help=%q", c.value, c.raw, c.continues, c.hidden, c.force, c.help)
@@ -90,8 +95,34 @@ func (c *candidate) Help() string {
 	return c.help
 }
 
-func (c *candidate) NeedsHelp() bool {
-	return c.needsHelp
+func (c *candidate) SetValue(value string) Candidate {
+	c.value = value
+	return c
+}
+
+func (c *candidate) SetRaw(raw bool) Candidate {
+	c.raw = raw
+	return c
+}
+
+func (c *candidate) SetHidden(hidden bool) Candidate {
+	c.hidden = hidden
+	return c
+}
+
+func (c *candidate) SetContinues(continues bool) Candidate {
+	c.continues = continues
+	return c
+}
+
+func (c *candidate) SetForce(force bool) Candidate {
+	c.force = force
+	return c
+}
+
+func (c *candidate) SetHelp(help string) Candidate {
+	c.help = help
+	return c
 }
 
 func (c *candidate) Matches(prefix string) bool {
@@ -107,11 +138,6 @@ func (c *candidate) GetCandidate(prefix string) []Candidate {
 		return []Candidate{c}
 	}
 	return nil
-}
-
-func readBool(rd *bufio.Reader) (bool, error) {
-	b, err := rd.ReadByte()
-	return b != 0, err
 }
 
 func (c *candidate) Serialize(wr *bufio.Writer) {
@@ -132,9 +158,6 @@ func (c *candidate) Serialize(wr *bufio.Writer) {
 	}
 	if c.force {
 		v |= force
-	}
-	if c.needsHelp {
-		v |= needsHelp
 	}
 	wr.WriteByte(v)
 }
@@ -158,9 +181,6 @@ func (c *candidate) Deserialize(rd *bufio.Reader) error {
 	}
 	if (v & force) != 0 {
 		c.force = true
-	}
-	if (v & needsHelp) != 0 {
-		c.needsHelp = true
 	}
 	return err
 }
@@ -203,53 +223,3 @@ func Deserialize(rd *bufio.Reader) (Candidate, error) {
 //		help:      help,
 //	}
 //}
-
-// candidate builder pattern code
-type CandidateBuilder struct {
-	candidate *candidate
-}
-
-func NewCandidateBuilder() *CandidateBuilder {
-	b := &CandidateBuilder{candidate: &candidate{}}
-	b.NeedsHelp(true) // set default.
-	return b
-}
-
-func (b *CandidateBuilder) Value(value string) *CandidateBuilder {
-	b.candidate.value = value
-	return b
-}
-
-func (b *CandidateBuilder) Raw(raw bool) *CandidateBuilder {
-	b.candidate.raw = raw
-	return b
-}
-
-func (b *CandidateBuilder) Hidden(hidden bool) *CandidateBuilder {
-	b.candidate.hidden = hidden
-	return b
-}
-
-func (b *CandidateBuilder) Continues(continues bool) *CandidateBuilder {
-	b.candidate.continues = continues
-	return b
-}
-
-func (b *CandidateBuilder) Force(force bool) *CandidateBuilder {
-	b.candidate.force = force
-	return b
-}
-
-func (b *CandidateBuilder) Help(help string) *CandidateBuilder {
-	b.candidate.help = help
-	return b
-}
-
-func (b *CandidateBuilder) NeedsHelp(needsHelp bool) *CandidateBuilder {
-	b.candidate.needsHelp = needsHelp
-	return b
-}
-
-func (b *CandidateBuilder) Build() Candidate {
-	return b.candidate
-}

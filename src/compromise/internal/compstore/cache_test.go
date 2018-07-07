@@ -9,16 +9,15 @@ import (
 
 func TestCashe(t *testing.T) {
 	source := []compromise.Candidate{
-		compromise.NewCandidateBuilder().Build(),
-		compromise.NewCandidateBuilder().Value("x").Build(),
-		compromise.NewCandidateBuilder().Help("help!").Build(),
-		compromise.NewCandidateBuilder().Raw(true).Build(),
-		compromise.NewCandidateBuilder().Hidden(true).Build(),
-		compromise.NewCandidateBuilder().Force(true).Build(),
-		compromise.NewCandidateBuilder().Continues(true).Build(),
-		compromise.NewCandidateBuilder().NeedsHelp(true).Build(),
+		compromise.NewCandidate(),
+		compromise.NewCandidate().SetValue("x"),
+		compromise.NewCandidate().SetHelp("help!"),
+		compromise.NewCandidate().SetRaw(true),
+		compromise.NewCandidate().SetHidden(true),
+		compromise.NewCandidate().SetForce(true),
+		compromise.NewCandidate().SetContinues(true),
 
-		compromise.NewCandidateBuilder().Value("v").Help("h").Raw(true).Hidden(true).Force(true).Continues(true).NeedsHelp(true).Build(),
+		compromise.NewCandidate().SetValue("v").SetHelp("h").SetRaw(true).SetHidden(true).SetForce(true).SetContinues(true),
 	}
 
 	compenv.CacheFilename = "/tmp/compromise-test-cache.dat"
