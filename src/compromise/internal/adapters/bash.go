@@ -504,7 +504,7 @@ func (a *bashAdapter) parseContext() {
 	for i+2 < len(tokens) {
 		decl := tokens[i]
 		if decl != "declare" {
-			compdebug.Warnf("Unable to parse variables\n", str)
+			compdebug.Warnf("Unable to parse variables: %q\n", str)
 			break
 		}
 		compdebug.Debugf("  %q\n", tokens[i+2])
