@@ -2,8 +2,10 @@ package main
 
 import (
 	"github.com/omakoto/compromise/src/compromise"
+	"github.com/omakoto/compromise/src/compromise/compenv"
 	"github.com/omakoto/compromise/src/compromise/compfunc"
 	"github.com/omakoto/compromise/src/compromise/compmain"
+	"path/filepath"
 )
 
 func init() {
@@ -13,7 +15,7 @@ func init() {
 func takeLunch() compromise.CandidateList {
 	return compromise.LazyCandidates(func(prefix string) []compromise.Candidate {
 		var ret []compromise.Candidate
-		for _, dev := range compfunc.ReadLinesFromFile(".android-devices") {
+		for _, dev := range compfunc.ReadLinesFromFile(filepath.Join(compenv.Home, ".android-devices")) {
 			for _, flavor := range []string{"eng", "userdebug"} {
 				ret = append(ret, compromise.NewCandidate().SetValue(dev+"-"+flavor))
 			}
