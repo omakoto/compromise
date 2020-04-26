@@ -57,7 +57,9 @@ func BuildCandidateListFromCommand(command string) compromise.CandidateList {
 // using each line as a single Candidate. If mapFunc is given, it'll be applied to each line.
 func BuildCandidateListFromCommandWithMap(command string, mapFunc func(line int, s string) string) compromise.CandidateList {
 	return BuildCandidateListFromCommandWithBuilder(command, func(line int, s string, c compromise.Candidate) {
-		s = mapFunc(line, s)
+		if mapFunc != nil {
+			s = mapFunc(line, s)
+		}
 		if len(s) > 0 {
 			c.SetValue(s)
 		}
