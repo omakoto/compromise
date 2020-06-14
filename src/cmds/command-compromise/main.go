@@ -38,7 +38,6 @@ func main() {
 	}
 	flag.Parse()
 
-
 	spec := "@loop\n"
 	spec += "  @switch\n"
 	if *takeDir {
