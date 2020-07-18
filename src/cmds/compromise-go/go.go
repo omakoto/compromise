@@ -319,10 +319,10 @@ var spec = "//" + compromise.NewDirectives().SetSourceLocation().Tab(4).JSON() +
 
 			@call :buildflags
 
-		@call :gofiles
+		// @call :gofiles
 	
-		//@loop
-		//	@any # argument	 // This doesn't work because the above call will eat all arguments...
+		@loop
+			@cand takeFile # argument	 // This doesn't work because the above call will eat all arguments...
 
 @label :test
 		@switchloop "^-"
