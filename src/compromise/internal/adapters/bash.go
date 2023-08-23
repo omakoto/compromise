@@ -16,7 +16,6 @@ import (
 	"github.com/omakoto/go-common/src/utils"
 	"github.com/ungerik/go-dry"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -282,7 +281,7 @@ func (a *bashAdapter) StartCompletion(commandLine *CommandLine) {
 	// TODO Fix up command line? (we used to do in the ruby version...)
 
 	if stdin, ok := a.in.(*os.File); !ok || !isatty.IsTerminal(stdin.Fd()) {
-		all, err := ioutil.ReadAll(a.in)
+		all, err := io.ReadAll(a.in)
 		common.Checkf(err, "ReadAll(stdin) failed")
 		dry.Nop(all) // TODO Receive from __compromise_context_passer
 		/* Sample:
@@ -486,7 +485,7 @@ func (a *bashAdapter) parseContext() {
 	if f, ok := a.in.(*os.File); ok && isatty.IsTerminal(f.Fd()) {
 		common.Fatalf("Stdin is terminal. Direct invocation doesn't work.")
 	}
-	bytes, err := ioutil.ReadAll(a.in)
+	bytes, err := io.ReadAll(a.in)
 	common.Check(err, "cannot read from stdin")
 
 	str := string(bytes)

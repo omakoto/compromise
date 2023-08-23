@@ -5,7 +5,7 @@ import (
 	"github.com/omakoto/compromise/src/compromise"
 	"github.com/omakoto/compromise/src/compromise/compdebug"
 	"github.com/omakoto/compromise/src/compromise/comptest"
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ func init() {
 
 // ReadLinesFromFile reads a file returns the lines in it. Lines starting with # will be ignored.
 func ReadLinesFromFile(filename string) []string {
-	content, err := ioutil.ReadFile(filename)
+	content, err := os.ReadFile(filename)
 	if err != nil {
 		return nil
 	}

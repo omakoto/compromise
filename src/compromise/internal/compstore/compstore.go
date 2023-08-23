@@ -7,7 +7,6 @@ import (
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/utils"
 	"github.com/ungerik/go-dry"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -67,7 +66,7 @@ func saveLocked() {
 	data, err := json.MarshalIndent(s, "", "  ")
 	common.CheckPanice(err)
 
-	err = ioutil.WriteFile(f, data, 0600)
+	err = os.WriteFile(f, data, 0600)
 	if err != nil {
 		common.Warnf("unable to save %s", f)
 		return

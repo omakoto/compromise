@@ -2,7 +2,7 @@ package comptest
 
 import (
 	"github.com/ungerik/go-dry"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -14,12 +14,12 @@ type FileEntry struct {
 var injectedFiles []string
 
 func IsEmptyDir(path string) bool {
-	files, _ := ioutil.ReadDir(path + "/")
+	files, _ := os.ReadDir(path + "/")
 	return len(files) == 0
 }
 
 func ListFiles(path string) ([]FileEntry, error) {
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}

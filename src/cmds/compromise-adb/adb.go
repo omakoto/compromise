@@ -15,7 +15,6 @@ import (
 	"github.com/omakoto/go-common/src/fileutils"
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/ungerik/go-dry"
-	"io/ioutil"
 )
 
 var (
@@ -376,7 +375,7 @@ func takeDeviceComponentInner(fetcher func(string) []string) compromise.Candidat
 
 // Extract test-method-looking words from a file.
 func findJavaTestMethods(file string) []string {
-	b, err := ioutil.ReadFile(file)
+	b, err := os.ReadFile(file)
 	if err != nil {
 		return nil
 	}

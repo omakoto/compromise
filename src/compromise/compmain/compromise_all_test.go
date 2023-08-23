@@ -9,7 +9,6 @@ import (
 	"github.com/omakoto/go-common/src/shell"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -64,7 +63,7 @@ func init() {
 
 func TestFull(t *testing.T) {
 	testdir := "./tests"
-	files, err := ioutil.ReadDir(testdir)
+	files, err := os.ReadDir(testdir)
 	if err != nil {
 		t.Fatalf("can't open test file dir: %s", err)
 		return
@@ -72,11 +71,11 @@ func TestFull(t *testing.T) {
 
 	commentsStripper := regexp.MustCompile(`(\n|^)//.*?\n`)
 	for _, f := range files {
-		if !f.Mode().IsRegular() {
+		if !f.Type().IsRegular() {
 			continue
 		}
 		file := filepath.Join(testdir, f.Name())
-		bindata, err := ioutil.ReadFile(file)
+		bindata, err := os.ReadFile(file)
 		if err != nil {
 			t.Fatalf("can't open test file %s: %s", file, err)
 			return
@@ -144,18 +143,18 @@ func diffPrettyText(diffs []diffmatchpatch.Diff) string {
 
 func TestBad(t *testing.T) {
 	testdir := "./bad"
-	files, err := ioutil.ReadDir(testdir)
+	files, err := os.ReadDir(testdir)
 	if err != nil {
 		t.Fatalf("can't open test file dir: %s", err)
 		return
 	}
 
 	for _, f := range files {
-		if !f.Mode().IsRegular() {
+		if !f.Type().IsRegular() {
 			continue
 		}
 		file := filepath.Join(testdir, f.Name())
-		bindata, err := ioutil.ReadFile(file)
+		bindata, err := os.ReadFile(file)
 		if err != nil {
 			t.Fatalf("can't open test file %s: %s", file, err)
 			return

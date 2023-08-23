@@ -13,7 +13,6 @@ import (
 	"github.com/omakoto/go-common/src/common"
 	"github.com/omakoto/go-common/src/textio"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -177,7 +176,7 @@ func HandleCompletionRaw(specProducer func() string, args []string, in io.Reader
 
 func loadFile(path string) (ret string) {
 	compdebug.Time("Load spec file", func() {
-		data, err := ioutil.ReadFile(path)
+		data, err := os.ReadFile(path)
 		common.Checkf(err, "unable to read from %s", path)
 		ret = string(data)
 	})

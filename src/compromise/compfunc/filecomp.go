@@ -6,7 +6,7 @@ import (
 	"github.com/omakoto/compromise/src/compromise/comptest"
 	"github.com/omakoto/go-common/src/utils"
 	"github.com/ungerik/go-dry"
-	"io/ioutil"
+	"os"
 	"path"
 	"regexp"
 )
@@ -40,7 +40,7 @@ func fileCompFunc(prefix, reFilenameMatcher string, includeFiles bool, mapper fu
 
 	compdebug.Debugf("fileCompFunc: %q (%q + %q), %q, %v\n", prefix, prefixDir, prefixFile, reFilenameMatcher, includeFiles)
 
-	files, err := ioutil.ReadDir(utils.FirstNonEmpty(prefixDir, "."))
+	files, err := os.ReadDir(utils.FirstNonEmpty(prefixDir, "."))
 	if err != nil {
 		compdebug.Debugf("Unable to read directory \"%s\": %s\n", prefixDir, err)
 		return nil

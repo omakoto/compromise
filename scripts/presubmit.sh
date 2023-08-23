@@ -10,6 +10,5 @@ go test -v -race ./...                   # Run all the tests with the race detec
 
 echo "Running extra checks..."
 staticcheck ./...
-golint $(go list ./...) |& grep -v '\(never used\|is unused\|comment on exported\|exported .* should have\)' | perl -pe 'END{exit($. > 0 ? 1 : 0)}'
 
 echo "All check passed."
